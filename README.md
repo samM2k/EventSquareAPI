@@ -37,14 +37,18 @@ Before you begin, ensure you have met the following requirements:
 	```bash
 	git clone https://github.com/your-username/your-api-repo.git
 2. Change to the project directory:
+
+	```bash
 	cd your-api-repo
 
 3. Restore the necessary packages:
+	```bash
 	dotnet restore
 
 4. Set up the database connection and configuration in appsettings.json or launchSettings.json.
 
 5. Run the application:
+	```bash
 	dotnet run
 
 6. The API should be accessible at http://localhost:5000 or a different port, depending on your configuration.
