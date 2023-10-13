@@ -50,5 +50,13 @@ Before you begin, ensure you have met the following requirements:
 6. The API should be accessible at http://localhost:5000 or a different port, depending on your configuration.
 
 ## Usage
+TBC
+
 ## Endpoints
+TBC
+
 ## Authentication
+- User authentication is handled using JWT (JSON Web Tokens). Users need to register and log in to access protected routes.
+- Authorization headers are required for accessing most of the API's endpoints.
+- Include a valid token in the Authorization header for requests.
+
