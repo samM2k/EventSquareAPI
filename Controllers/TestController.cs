@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventSquareAPI.Controllers;
@@ -8,8 +9,12 @@ namespace EventSquareAPI.Controllers;
 /// </summary>
 public class TestController : ControllerBase
 {
-    public TestController()
-    {}
+    private readonly UserManager<IdentityUser> _userManager;
+
+    public TestController(UserManager<IdentityUser> userManager)
+    {
+        this._userManager = userManager;
+    }
 
     /// <summary>
     /// Validates a users session.
@@ -18,9 +23,10 @@ public class TestController : ControllerBase
     [HttpGet]
     [Route("ValidateToken")]
     [Authorize]
-    public StatusCodeResult ValidateToken()
+    public async Task<ObjectResult> ValidateToken()
     {
-        StatusCodeResult result = new(200);
-        return new(200);
+        var user = await _userManager.GetUserAsync(HttpContext.User);
+        var roles = await _userManager.GetRolesAsync(user);
+        return new OkObjectResult(user);
     }
 }
