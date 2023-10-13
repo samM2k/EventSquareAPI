@@ -15,6 +15,13 @@ public static class Startup
 
         var app = builder.Build();
 
+        ConfigureMiddleware(app);
+
+        return app;
+    }
+
+    private static void ConfigureMiddleware(WebApplication app)
+    {
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
@@ -31,8 +38,6 @@ public static class Startup
         app.UseAuthorization();
 
         app.MapControllers();
-
-        return app;
     }
 
     private static void ConfigureServices(WebApplicationBuilder builder)
