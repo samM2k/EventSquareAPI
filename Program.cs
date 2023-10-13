@@ -10,23 +10,23 @@ using Microsoft.OpenApi.Models;
 
 namespace EventSquareAPI;
 
+/// <summary>
+/// The main Program class.
+/// </summary>
 public class Program
 {
+    /// <summary>
+    /// The program entry point.
+    /// </summary>
+    /// <param name="args">Command line arguments.</param>
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        var configuration = builder.Configuration;
         // Add services to the container.
 
         builder.Services.AddControllers();
-        IConfiguration configuration = new ConfigurationBuilder()
-       .SetBasePath(Directory.GetCurrentDirectory())
-       .AddJsonFile("appsettings.json")
-       .AddJsonFile("appsettings.Development.json", optional: true)
-       .AddJsonFile("launchSettings.json", optional: true) // Include launchSettings.json
-       .Build();
-
-        builder.Services.AddSingleton<IConfiguration>(configuration);
+        
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(c =>
@@ -123,7 +123,7 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseRouting();
-        app.UseAuthentication(); // Add this line
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();

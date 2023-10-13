@@ -2,8 +2,17 @@
 
 namespace EventSquareAPI;
 
+/// <summary>
+/// The user login.
+/// </summary>
 public class LoginModel
-{
+{   
+    public LoginModel(string email, string password) : base()
+    {
+        Email = email;
+        Password = password;
+    }
+
     [Required]
     [EmailAddress]
     public string Email { get; set; }
