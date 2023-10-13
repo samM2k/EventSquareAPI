@@ -7,8 +7,16 @@ using System.Text;
 
 namespace EventSquareAPI;
 
+/// <summary>
+/// Handles the startup logic.
+/// </summary>
 public static class Startup
 {
+    /// <summary>
+    /// Configures the web application.
+    /// </summary>
+    /// <param name="builder">The web application builder.</param>
+    /// <returns>The web application</returns>
     public static WebApplication Configure(this WebApplicationBuilder builder)
     {
         ConfigureServices(builder);
@@ -20,6 +28,10 @@ public static class Startup
         return app;
     }
 
+    /// <summary>
+    /// Configures the middleware for the app to use.
+    /// </summary>
+    /// <param name="app">The web application.</param>
     private static void ConfigureMiddleware(WebApplication app)
     {
         // Configure the HTTP request pipeline.
@@ -40,6 +52,10 @@ public static class Startup
         app.MapControllers();
     }
 
+    /// <summary>
+    /// Configures the necessary services for the application.
+    /// </summary>
+    /// <param name="builder">The web application builder.</param>
     private static void ConfigureServices(WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
@@ -79,7 +95,16 @@ public static class Startup
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlite(connectionString));
 
+        ConfigureIdentity(builder);
+    }
 
+    /// <summary>
+    /// Configures Identity, Authentication, and Authorization.
+    /// </summary>
+    /// <param name="builder">The web application builder.</param>
+    private static void ConfigureIdentity(WebApplicationBuilder builder)
+    {
+        var configuration = builder.Configuration;
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
