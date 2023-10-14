@@ -8,7 +8,7 @@ public class CalendarEvent
 {
 
 
-    public CalendarEvent(Guid id, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description)
+    public CalendarEvent(string id, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description)
     {
         Id = id;
         StartDateTime = startDateTime;
@@ -18,12 +18,12 @@ public class CalendarEvent
     }
 
 
-    public CalendarEvent(DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description) : this(Guid.NewGuid(), startDateTime, endDateTime, name, description) { }
+    public CalendarEvent(DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description) : this(Guid.NewGuid().ToString(), startDateTime, endDateTime, name, description) { }
 
     /// <summary>
     /// Gets the unique identifier of the event.
     /// </summary>
-    public Guid Id { get; init; }
+    public string Id { get; init; }
 
     /// <summary>
     /// Gets or sets the start of the event.
