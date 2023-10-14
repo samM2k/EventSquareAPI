@@ -44,4 +44,10 @@ public class Rsvp
     /// Gets or sets the user's attendance status (Going, Not Going, etc.).
     /// </summary>
     public AttendanceStatus Status { get; set; }
+
+    /// <summary>
+    /// Gets the linked event.
+    /// </summary>
+    /// <remarks>Used for EFCore linking.</remarks>
+    public CalendarEvent? Event { get; init; }
 }
