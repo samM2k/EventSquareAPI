@@ -16,6 +16,11 @@ public enum AttendanceStatus
     Going,
 
     /// <summary>
+    /// Attending Virtually.
+    /// </summary>
+    AttendingVirtually,
+
+    /// <summary>
     /// Not Going.
     /// </summary>
     NotGoing,

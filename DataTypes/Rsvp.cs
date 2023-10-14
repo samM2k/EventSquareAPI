@@ -7,6 +7,13 @@ namespace EventSquareAPI.DataTypes;
 /// </summary>
 public class Rsvp
 {
+    /// <summary>
+    /// Constructs an RSVP.
+    /// </summary>
+    /// <param name="id">The unique identifier of this RSVP.</param>
+    /// <param name="eventId">The unique identifier of the event being responded to.</param>
+    /// <param name="userId">The unique identifier of the user responding.</param>
+    /// <param name="status">The expected attendance status.</param>
     public Rsvp(string id, string eventId, string userId, AttendanceStatus status)
     {
         Id = id;
