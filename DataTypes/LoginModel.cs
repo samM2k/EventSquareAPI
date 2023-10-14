@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EventSquareAPI;
+namespace EventSquareAPI.DataTypes;
 
 /// <summary>
 /// The user login.
 /// </summary>
 public class LoginModel
-{   
+{
     public LoginModel(string email, string password) : base()
     {
         Email = email;
