@@ -22,6 +22,7 @@ public class Rsvp
         EventId = eventId;
         UserId = userId;
         Status = status;
+        Event = calendarEvent;
     }
 
     // This is the one we use for EF Core as it doesn't require Id pr linked Event object but can process them post-construction as required.

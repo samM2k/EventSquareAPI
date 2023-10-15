@@ -23,7 +23,7 @@ public class CalendarEvent
     /// <param name="isVirtual">Whether or not the event can be attended virtually.</param>
     /// <param name="isPhysical">Whether or not the event can be attended in person.</param>
     /// <param name="location">The location of the event</param>
-    public CalendarEvent(string id, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical, Location? location, Rsvp[] rsvps)
+    public CalendarEvent(string id, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical, Location? location, List<Rsvp> rsvps)
     {
         Id = id;
         StartDateTime = startDateTime;
@@ -39,11 +39,11 @@ public class CalendarEvent
     // This is the one we use for EF Core as it doesn't require ID or RSVPs but can attach them post-construction if provided.
     [JsonConstructor]
     public CalendarEvent(DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical, Location? location)
-        : this(Guid.NewGuid().ToString(), startDateTime, endDateTime, name, description, isVirtual, isPhysical, location, Array.Empty<Rsvp>()) { }
+        : this(Guid.NewGuid().ToString(), startDateTime, endDateTime, name, description, isVirtual, isPhysical, location, new List<Rsvp>()) { }
 
-    public CalendarEvent(string id, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical) : this(id, startDateTime, endDateTime, name, description, isVirtual, isPhysical, null, Array.Empty<Rsvp>()) { }
+    public CalendarEvent(string id, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical) : this(id, startDateTime, endDateTime, name, description, isVirtual, isPhysical, null, new List<Rsvp>()) { }
 
-    public CalendarEvent(DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical) : this(Guid.NewGuid().ToString(), startDateTime, endDateTime, name, description, isVirtual, isPhysical, null, Array.Empty<Rsvp>()) { }
+    public CalendarEvent(DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical) : this(Guid.NewGuid().ToString(), startDateTime, endDateTime, name, description, isVirtual, isPhysical, null, new List<Rsvp>()) { }
 
     /// <summary>
     /// Gets the unique identifier of the event.
@@ -88,5 +88,5 @@ public class CalendarEvent
     /// <summary>
     /// Gets the RSVPs for the event. Used for EFCOre linking.
     /// </summary>
-    public Rsvp[] Rsvps { get; init; }
+    public ICollection<Rsvp> Rsvps { get; init; }
 }
