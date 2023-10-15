@@ -22,8 +22,10 @@ public class CalendarEvent
     /// <param name="description">The event description.</param>
     /// <param name="isVirtual">Whether or not the event can be attended virtually.</param>
     /// <param name="isPhysical">Whether or not the event can be attended in person.</param>
+    /// <param name="owner">The owner of the event..</param>
+    /// <param name="visibility">The visibility of the event.</param>
     /// <param name="location">The location of the event</param>
-    public CalendarEvent(string id, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical, Location? location, List<Rsvp> rsvps)
+    public CalendarEvent(string id, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical, Location? location, string owner, EventVisibility visibility, List<Rsvp> rsvps)
     {
         Id = id;
         StartDateTime = startDateTime;
@@ -34,21 +36,29 @@ public class CalendarEvent
         IsPhysical = isPhysical;
         Location = location;
         Rsvps = rsvps;
+        Owner = owner;
+        Visibility = visibility;
     }
 
     // This is the one we use for EF Core as it doesn't require ID or RSVPs but can attach them post-construction if provided.
     [JsonConstructor]
-    public CalendarEvent(DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical, Location? location)
-        : this(Guid.NewGuid().ToString(), startDateTime, endDateTime, name, description, isVirtual, isPhysical, location, new List<Rsvp>()) { }
-
-    public CalendarEvent(string id, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical) : this(id, startDateTime, endDateTime, name, description, isVirtual, isPhysical, null, new List<Rsvp>()) { }
-
-    public CalendarEvent(DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical) : this(Guid.NewGuid().ToString(), startDateTime, endDateTime, name, description, isVirtual, isPhysical, null, new List<Rsvp>()) { }
+    public CalendarEvent(DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical, string owner, Location? location)
+        : this(Guid.NewGuid().ToString(), startDateTime, endDateTime, name, description, isVirtual, isPhysical, location, owner, EventVisibility.Hidden, new List<Rsvp>()) { }
 
     /// <summary>
     /// Gets the unique identifier of the event.
     /// </summary>
     public string Id { get; init; }
+
+    /// <summary>
+    /// Gets the ID of the owner of the event.
+    /// </summary>
+    public string Owner { get; init; }
+
+    /// <summary>
+    /// Gets or sets the visibility of the event.
+    /// </summary>
+    public EventVisibility Visibility { get; set; }
 
     /// <summary>
     /// Gets or sets the start of the event.
