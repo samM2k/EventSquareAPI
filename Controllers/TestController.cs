@@ -21,7 +21,7 @@ public class TestController : ControllerBase
     }
 
     /// <summary>
-    /// Validates a users session.
+    /// Validate a users session.
     /// </summary>
     /// <returns>A result indicating the success or failure of authentication.</returns>
     [HttpGet]

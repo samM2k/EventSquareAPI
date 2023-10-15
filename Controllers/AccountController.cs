@@ -31,7 +31,7 @@ public class AccountController : ControllerBase
     }
 
     /// <summary>
-    /// Registers a new user.
+    /// Register a new user.
     /// </summary>
     /// <param name="login">The login credentials.</param>
     /// <returns>The result of the operation.</returns>

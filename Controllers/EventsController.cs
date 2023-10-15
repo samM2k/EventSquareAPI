@@ -34,7 +34,7 @@ public class EventsController : ControllerBase
 
     // GET: api/Events
     /// <summary>
-    /// GET Request for retrieving all events.
+    /// Get all events.
     /// </summary>
     /// <returns>The HTTP response.</returns>
     [HttpGet]
@@ -49,7 +49,7 @@ public class EventsController : ControllerBase
 
     // GET: api/Events/5
     /// <summary>
-    /// GET Request for an event of a given Id.
+    /// Get an event of a given Id.
     /// </summary>
     /// <param name="id">The unique identifier of the event.</param>
     /// <returns>The HTTP response.</returns>
@@ -73,7 +73,7 @@ public class EventsController : ControllerBase
     // PUT: api/Events/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     /// <summary>
-    /// PUT Request for updating a given event. 
+    /// Update a given event. 
     /// </summary>
     /// <param name="id">The unique identifier of the event.</param>
     /// <param name="calendarEvent">The updated event.</param>
@@ -110,7 +110,7 @@ public class EventsController : ControllerBase
     // POST: api/Events
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     /// <summary>
-    /// POST Request to create a new event.
+    /// Insert a new event.
     /// </summary>
     /// <param name="calendarEvent">The new event.</param>
     /// <returns>The HTTP response.</returns>
@@ -143,7 +143,7 @@ public class EventsController : ControllerBase
 
     // DELETE: api/Events/5
     /// <summary>
-    /// DELETE Request for deleting an event of a given Id.
+    /// Delete an event of a given Id.
     /// </summary>
     /// <param name="id">The Id of the event to delete.</param>
     /// <returns>The HTTP response.</returns>

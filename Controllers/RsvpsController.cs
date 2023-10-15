@@ -33,7 +33,7 @@ public class RsvpsController : ControllerBase
 
     // GET: api/Rsvps
     /// <summary>
-    /// GET Request for all RSVPs.
+    /// Get all RSVPs.
     /// </summary>
     /// <returns>The HTTP response.</returns>
     [HttpGet]
@@ -48,7 +48,7 @@ public class RsvpsController : ControllerBase
 
     // GET: api/Rsvps/5
     /// <summary>
-    /// GET Request for an RSVP of a given Id.
+    /// Get an RSVP of a given Id.
     /// </summary>
     /// <param name="id">The Id for which to return a corresponding RSVP record.</param>
     /// <returns>The HTTP response.</returns>
