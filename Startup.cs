@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Text;
+using System.Text.Json.Serialization;
+
+using EventSquareAPI.Security;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
-using System.Text.Json.Serialization;
 
 namespace EventSquareAPI;
 
@@ -97,7 +99,7 @@ public static class Startup
                 }
             });
 
-            var basePath =  PlatformServices.Default.Application.ApplicationBasePath;
+            var basePath = PlatformServices.Default.Application.ApplicationBasePath;
             var xmlPath = Path.Combine(basePath, "EventSquareAPI.xml"); // Specify the path to your XML documentation file
             c.IncludeXmlComments(xmlPath);
         });
@@ -158,6 +160,22 @@ public static class Startup
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? throw new InvalidOperationException("Unable to get JWT Secret from appSettings.")))
             };
         });
+
+        builder.Services.AddScoped<TokenGenerator>(provider =>
+        {
+            var configuration = provider.GetRequiredService<IConfiguration>();
+            var secret = configuration["Jwt:Secret"];
+            var audience = configuration["Jwt:Audience"];
+            var issuer = configuration["Jwt:Issuer"];
+
+            if (secret is null)
+            {
+                throw new InvalidOperationException("Unable to get JWT Secret from Configuration.");
+            }
+
+            return new TokenGenerator(secret, audience, issuer);
+        });
+
 
         builder.Services.AddAuthorization();
     }

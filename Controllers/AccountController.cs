@@ -1,12 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 using EventSquareAPI.DataTypes;
+using EventSquareAPI.Security;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace EventSquareAPI.Controllers;
 
@@ -20,16 +18,19 @@ public class AccountController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _configuration;
+    private readonly TokenGenerator _tokenGenerator;
 
     /// <summary>
-    /// 
+    /// The account controller.
     /// </summary>
-    /// <param name="userManager"></param>
-    /// <param name="configuration"></param>
-    public AccountController(UserManager<IdentityUser> userManager, IConfiguration configuration)
+    /// <param name="userManager">The ASP.NET Identity UserManager.</param>
+    /// <param name="configuration">The Configuration object.</param>
+    /// <param name="tokenGenerator">The Token Generator.</param>
+    public AccountController(UserManager<IdentityUser> userManager, IConfiguration configuration, TokenGenerator tokenGenerator)
     {
         this._userManager = userManager;
         this._configuration = configuration;
+        this._tokenGenerator = tokenGenerator;
     }
 
     /// <summary>
@@ -78,24 +79,7 @@ public class AccountController : ControllerBase
 
             if (user != null && await this._userManager.CheckPasswordAsync(user, login.Password))
             {
-                var claims = new[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id ),
-                    new Claim(ClaimTypes.Name, user.UserName ?? string.Empty )
-                    // You can add more claims as needed
-                };
-
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this._configuration["Jwt:Key"] ?? string.Empty));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-                var token = new JwtSecurityToken(
-                    this._configuration["Jwt:Issuer"],
-                    this._configuration["Jwt:Audience"],
-                    claims,
-                    expires: DateTime.Now.AddMinutes(30), // You can adjust the expiration time
-                    signingCredentials: creds
-                );
-
+                JwtSecurityToken token = this._tokenGenerator.GetToken(user);
                 return this.Ok(new
                 {
                     Token = new JwtSecurityTokenHandler().WriteToken(token),
