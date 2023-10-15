@@ -7,16 +7,27 @@ namespace EventSquareAPI.DataTypes;
 /// </summary>
 public class LoginModel
 {
+    /// <summary>
+    /// The user login.
+    /// </summary>
+    /// <param name="email">The user's email.</param>
+    /// <param name="password">The user's password.</param>
     public LoginModel(string email, string password) : base()
     {
         Email = email;
         Password = password;
     }
 
+    /// <summary>
+    /// Gets or sets the user's email.
+    /// </summary>
     [Required]
     [EmailAddress]
     public string Email { get; set; }
 
+    /// <summary>
+    /// Gets or sets the user's password.
+    /// </summary>
     [Required]
     [MinLength(6)] // Adjust the minimum password length as needed
     public string Password { get; set; }

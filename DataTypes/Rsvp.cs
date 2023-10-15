@@ -16,6 +16,7 @@ public class Rsvp
     /// <param name="eventId">The unique identifier of the event being responded to.</param>
     /// <param name="userId">The unique identifier of the user responding.</param>
     /// <param name="status">The expected attendance status.</param>
+    /// <param name="calendarEvent">The event being responded to..</param>
     public Rsvp(string id, string eventId, string userId, AttendanceStatus status, CalendarEvent? calendarEvent)
     {
         Id = id;
@@ -26,6 +27,12 @@ public class Rsvp
     }
 
     // This is the one we use for EF Core as it doesn't require Id pr linked Event object but can process them post-construction as required.
+    /// <summary>
+    /// An RSVP or response to an event.
+    /// </summary>
+    /// <param name="eventId">The unique identifier of the event.</param>
+    /// <param name="userId">The unique identifier of the user responding.</param>
+    /// <param name="status">Whether this user will attend this event and how.</param>
     [JsonConstructor]
     public Rsvp(string eventId, string userId, AttendanceStatus status) : this(Guid.NewGuid().ToString(), eventId, userId, status, null) { }
 

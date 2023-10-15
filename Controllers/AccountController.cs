@@ -19,6 +19,11 @@ public class AccountController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _configuration;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="userManager"></param>
+    /// <param name="configuration"></param>
     public AccountController(UserManager<IdentityUser> userManager, IConfiguration configuration)
     {
         _userManager = userManager;
@@ -74,11 +79,11 @@ public class AccountController : ControllerBase
                 var claims = new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id ),
-                    new Claim(ClaimTypes.Name, user.UserName )
+                    new Claim(ClaimTypes.Name, user.UserName ?? string.Empty )
                     // You can add more claims as needed
                 };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? string.Empty));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
                 var token = new JwtSecurityToken(

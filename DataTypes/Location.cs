@@ -22,6 +22,14 @@ public class Location
     }
 
 
+    /// <summary>
+    /// A location.
+    /// </summary>
+    /// <param name="streetNumber">The street number.</param>
+    /// <param name="streetName">The name of the stret, including the street type.</param>
+    /// <param name="locality">The suburb/town/city.</param>
+    /// <param name="stateRegion">The state/region.</param>
+    /// <param name="country">The country.</param>
     public Location(int streetNumber, string streetName, string locality, string stateRegion, string country) :
         this(null, streetNumber, streetName, locality, stateRegion, country)
     { }

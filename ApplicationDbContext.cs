@@ -12,6 +12,10 @@ namespace EventSquareAPI;
 /// <remarks>Inherits ASP.NET Identity's IdentityDbContext</remarks>
 public class ApplicationDbContext : IdentityDbContext
 {
+    /// <summary>
+    /// The data context for the application.
+    /// </summary>
+    /// <param name="options">The options.</param>
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
        : base(options)
     {
@@ -28,6 +32,10 @@ public class ApplicationDbContext : IdentityDbContext
     /// </summary>
     public DbSet<Rsvp> Rsvps { get; set; }
 
+    /// <summary>
+    /// Invoked on creation of Entity Relationship Model.
+    /// </summary>
+    /// <param name="builder">The model builder.</param>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

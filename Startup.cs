@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -94,6 +96,10 @@ public static class Startup
                     new string[] { }
                 }
             });
+
+            var basePath =  PlatformServices.Default.Application.ApplicationBasePath;
+            var xmlPath = Path.Combine(basePath, "EventSquareAPI.xml"); // Specify the path to your XML documentation file
+            c.IncludeXmlComments(xmlPath);
         });
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -149,7 +155,7 @@ public static class Startup
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = configuration["Jwt:Issuer"],
                 ValidAudience = configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? throw new InvalidOperationException("Unable to get JWT Secret from appSettings.")))
             };
         });
 

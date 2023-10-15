@@ -11,6 +11,10 @@ public class TestController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
 
+    /// <summary>
+    /// Test controller.
+    /// </summary>
+    /// <param name="userManager"></param>
     public TestController(UserManager<IdentityUser> userManager)
     {
         this._userManager = userManager;
@@ -26,6 +30,11 @@ public class TestController : ControllerBase
     public async Task<ObjectResult> ValidateToken()
     {
         var user = await _userManager.GetUserAsync(HttpContext.User);
+
+        if (user is null)
+        {
+            return Problem("User not found.");
+        }
         var roles = await _userManager.GetRolesAsync(user);
         return new OkObjectResult(user);
     }
