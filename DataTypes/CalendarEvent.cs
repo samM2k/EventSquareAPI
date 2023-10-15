@@ -11,6 +11,8 @@ namespace EventSquareAPI.DataTypes;
 /// <remarks>Couldn't just call event due to conflicting type names.</remarks>
 public class CalendarEvent
 {
+    // Required for migrations, kept private to avoid actual usage.
+    private CalendarEvent() { }
 
     /// <summary>
     /// Constructs a calendar event.
