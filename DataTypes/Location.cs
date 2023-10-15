@@ -1,4 +1,6 @@
-﻿namespace EventSquareAPI.DataTypes;
+﻿using System.Text.Json.Serialization;
+
+namespace EventSquareAPI.DataTypes;
 
 /// <summary>
 /// An address or location.
@@ -8,6 +10,7 @@ public class Location
     /// <summary>
     /// Constructs a location.
     /// </summary>
+    [JsonConstructor]
     public Location(int? flatNumber, int streetNumber, string streetName, string locality, string stateRegion, string country)
     {
         FlatNumber = flatNumber;

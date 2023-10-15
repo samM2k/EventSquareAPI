@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Components.Routing;
 
@@ -10,6 +11,7 @@ namespace EventSquareAPI.DataTypes;
 /// <remarks>Couldn't just call event due to conflicting type names.</remarks>
 public class CalendarEvent
 {
+
     /// <summary>
     /// Constructs a calendar event.
     /// </summary>
@@ -34,7 +36,8 @@ public class CalendarEvent
         Rsvps = rsvps;
     }
 
-
+    // This is the one we use for EF Core as it doesn't require ID or RSVPs but can attach them post-construction if provided.
+    [JsonConstructor]
     public CalendarEvent(DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical, Location? location)
         : this(Guid.NewGuid().ToString(), startDateTime, endDateTime, name, description, isVirtual, isPhysical, location, Array.Empty<Rsvp>()) { }
 

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Text.Json.Serialization;
+
+using Microsoft.AspNetCore.Identity;
 
 namespace EventSquareAPI.DataTypes;
 
@@ -14,7 +16,7 @@ public class Rsvp
     /// <param name="eventId">The unique identifier of the event being responded to.</param>
     /// <param name="userId">The unique identifier of the user responding.</param>
     /// <param name="status">The expected attendance status.</param>
-    public Rsvp(string id, string eventId, string userId, AttendanceStatus status)
+    public Rsvp(string id, string eventId, string userId, AttendanceStatus status, CalendarEvent? calendarEvent)
     {
         Id = id;
         EventId = eventId;
@@ -22,7 +24,9 @@ public class Rsvp
         Status = status;
     }
 
-    public Rsvp(string eventId, string userId, AttendanceStatus status): this(Guid.NewGuid().ToString(), eventId, userId, status) { }
+    // This is the one we use for EF Core as it doesn't require Id pr linked Event object but can process them post-construction as required.
+    [JsonConstructor]
+    public Rsvp(string eventId, string userId, AttendanceStatus status) : this(Guid.NewGuid().ToString(), eventId, userId, status, null) { }
 
 
     /// <summary>
