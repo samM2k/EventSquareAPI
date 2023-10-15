@@ -14,8 +14,8 @@ public class LoginModel
     /// <param name="password">The user's password.</param>
     public LoginModel(string email, string password) : base()
     {
-        Email = email;
-        Password = password;
+        this.Email = email;
+        this.Password = password;
     }
 
     /// <summary>

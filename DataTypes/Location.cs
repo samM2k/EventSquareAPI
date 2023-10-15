@@ -13,12 +13,12 @@ public class Location
     [JsonConstructor]
     public Location(int? flatNumber, int streetNumber, string streetName, string locality, string stateRegion, string country)
     {
-        FlatNumber = flatNumber;
-        StreetNumber = streetNumber;
-        StreetName = streetName;
-        Locality = locality;
-        StateRegion = stateRegion;
-        Country = country;
+        this.FlatNumber = flatNumber;
+        this.StreetNumber = streetNumber;
+        this.StreetName = streetName;
+        this.Locality = locality;
+        this.StateRegion = stateRegion;
+        this.Country = country;
     }
 
 

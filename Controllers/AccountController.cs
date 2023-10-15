@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+
 using EventSquareAPI.DataTypes;
+
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace EventSquareAPI.Controllers;
 
@@ -26,8 +28,8 @@ public class AccountController : ControllerBase
     /// <param name="configuration"></param>
     public AccountController(UserManager<IdentityUser> userManager, IConfiguration configuration)
     {
-        _userManager = userManager;
-        _configuration = configuration;
+        this._userManager = userManager;
+        this._configuration = configuration;
     }
 
     /// <summary>
@@ -38,7 +40,7 @@ public class AccountController : ControllerBase
     [HttpPost("signup")]
     public async Task<IActionResult> Signup([FromBody] LoginModel login)
     {
-        if (ModelState.IsValid)
+        if (this.ModelState.IsValid)
         {
             var user = new IdentityUser
             {
@@ -47,19 +49,19 @@ public class AccountController : ControllerBase
                 // You can add additional user properties here
             };
 
-            var result = await _userManager.CreateAsync(user, login.Password);
+            var result = await this._userManager.CreateAsync(user, login.Password);
 
             if (result.Succeeded)
             {
                 // User registration successful, you may also generate a token and send it as a response if needed
-                return Ok(new { Message = "User registered successfully" });
+                return this.Ok(new { Message = "User registered successfully" });
             }
 
             // If registration fails, return the error messages
-            return BadRequest(new { result.Errors });
+            return this.BadRequest(new { result.Errors });
         }
 
-        return BadRequest(new { Message = "Invalid login" });
+        return this.BadRequest(new { Message = "Invalid login" });
     }
 
     /// <summary>
@@ -70,11 +72,11 @@ public class AccountController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginModel login)
     {
-        if (ModelState.IsValid)
+        if (this.ModelState.IsValid)
         {
-            IdentityUser? user = await _userManager.FindByNameAsync(login.Email);
+            IdentityUser? user = await this._userManager.FindByNameAsync(login.Email);
 
-            if (user != null && await _userManager.CheckPasswordAsync(user, login.Password))
+            if (user != null && await this._userManager.CheckPasswordAsync(user, login.Password))
             {
                 var claims = new[]
                 {
@@ -83,27 +85,27 @@ public class AccountController : ControllerBase
                     // You can add more claims as needed
                 };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? string.Empty));
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this._configuration["Jwt:Key"] ?? string.Empty));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
                 var token = new JwtSecurityToken(
-                    _configuration["Jwt:Issuer"],
-                    _configuration["Jwt:Audience"],
+                    this._configuration["Jwt:Issuer"],
+                    this._configuration["Jwt:Audience"],
                     claims,
                     expires: DateTime.Now.AddMinutes(30), // You can adjust the expiration time
                     signingCredentials: creds
                 );
 
-                return Ok(new
+                return this.Ok(new
                 {
                     Token = new JwtSecurityTokenHandler().WriteToken(token),
                     Expiration = token.ValidTo
                 });
             }
 
-            return Unauthorized(new { Message = "Invalid email or password" });
+            return this.Unauthorized(new { Message = "Invalid email or password" });
         }
 
-        return BadRequest(new { Message = "Invalid model" });
+        return this.BadRequest(new { Message = "Invalid model" });
     }
 }

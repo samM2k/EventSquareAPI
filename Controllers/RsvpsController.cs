@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using EventSquareAPI.DataTypes;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using EventSquareAPI;
-using EventSquareAPI.DataTypes;
 
 namespace EventSquareAPI.Controllers;
 
@@ -28,7 +23,7 @@ public class RsvpsController : ControllerBase
     /// <param name="context">The data context.</param>
     public RsvpsController(ApplicationDbContext context)
     {
-        _context = context;
+        this._context = context;
     }
 
     // GET: api/Rsvps
@@ -39,11 +34,11 @@ public class RsvpsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Rsvp>>> GetRsvps()
     {
-      if (_context.Rsvps == null)
-      {
-          return Problem("Entity set not found in database.");
-      }
-        return await _context.Rsvps.ToListAsync();
+        if (this._context.Rsvps == null)
+        {
+            return this.Problem("Entity set not found in database.");
+        }
+        return await this._context.Rsvps.ToListAsync();
     }
 
     // GET: api/Rsvps/5
@@ -55,15 +50,15 @@ public class RsvpsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Rsvp>> GetRsvp(string id)
     {
-      if (_context.Rsvps == null)
-      {
-          return NotFound();
-      }
-        var rsvp = await _context.Rsvps.FindAsync(id);
+        if (this._context.Rsvps == null)
+        {
+            return this.NotFound();
+        }
+        var rsvp = await this._context.Rsvps.FindAsync(id);
 
         if (rsvp == null)
         {
-            return NotFound();
+            return this.NotFound();
         }
 
         return rsvp;
@@ -81,20 +76,20 @@ public class RsvpsController : ControllerBase
     {
         if (id != rsvp.Id)
         {
-            return BadRequest();
+            return this.BadRequest();
         }
 
-        _context.Entry(rsvp).State = EntityState.Modified;
+        this._context.Entry(rsvp).State = EntityState.Modified;
 
         try
         {
-            await _context.SaveChangesAsync();
+            await this._context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!RsvpExists(id))
+            if (!this.RsvpExists(id))
             {
-                return NotFound();
+                return this.NotFound();
             }
             else
             {
@@ -102,7 +97,7 @@ public class RsvpsController : ControllerBase
             }
         }
 
-        return NoContent();
+        return this.NoContent();
     }
 
     // POST: api/Rsvps
@@ -114,20 +109,20 @@ public class RsvpsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Rsvp>> PostRsvp(Rsvp rsvp)
     {
-      if (_context.Rsvps == null)
-      {
-          return Problem("Entity set 'ApplicationDbContext.Rsvps'  is null.");
-      }
-        _context.Rsvps.Add(rsvp);
+        if (this._context.Rsvps == null)
+        {
+            return this.Problem("Entity set 'ApplicationDbContext.Rsvps'  is null.");
+        }
+        this._context.Rsvps.Add(rsvp);
         try
         {
-            await _context.SaveChangesAsync();
+            await this._context.SaveChangesAsync();
         }
         catch (DbUpdateException)
         {
-            if (RsvpExists(rsvp.Id))
+            if (this.RsvpExists(rsvp.Id))
             {
-                return Conflict();
+                return this.Conflict();
             }
             else
             {
@@ -135,7 +130,7 @@ public class RsvpsController : ControllerBase
             }
         }
 
-        return CreatedAtAction("GetRsvp", new { id = rsvp.Id }, rsvp);
+        return this.CreatedAtAction("GetRsvp", new { id = rsvp.Id }, rsvp);
     }
 
     // DELETE: api/Rsvps/5
@@ -147,20 +142,20 @@ public class RsvpsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteRsvp(string id)
     {
-        if (_context.Rsvps == null)
+        if (this._context.Rsvps == null)
         {
-            return NotFound();
+            return this.NotFound();
         }
-        var rsvp = await _context.Rsvps.FindAsync(id);
+        var rsvp = await this._context.Rsvps.FindAsync(id);
         if (rsvp == null)
         {
-            return NotFound();
+            return this.NotFound();
         }
 
-        _context.Rsvps.Remove(rsvp);
-        await _context.SaveChangesAsync();
+        this._context.Rsvps.Remove(rsvp);
+        await this._context.SaveChangesAsync();
 
-        return NoContent();
+        return this.NoContent();
     }
 
     /// <summary>
@@ -170,6 +165,6 @@ public class RsvpsController : ControllerBase
     /// <returns>A value indicating or not an RSVP exists for the given Id.</returns>
     private bool RsvpExists(string id)
     {
-        return (_context.Rsvps?.Any(e => e.Id == id)).GetValueOrDefault();
+        return (this._context.Rsvps?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

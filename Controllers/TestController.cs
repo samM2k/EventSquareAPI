@@ -29,13 +29,13 @@ public class TestController : ControllerBase
     [Authorize]
     public async Task<ObjectResult> ValidateToken()
     {
-        var user = await _userManager.GetUserAsync(HttpContext.User);
+        var user = await this._userManager.GetUserAsync(this.HttpContext.User);
 
         if (user is null)
         {
-            return Problem("User not found.");
+            return this.Problem("User not found.");
         }
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = await this._userManager.GetRolesAsync(user);
         return new OkObjectResult(user);
     }
 }

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using EventSquareAPI.DataTypes;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using EventSquareAPI;
-using EventSquareAPI.DataTypes;
-using System.Diagnostics;
 
 namespace EventSquareAPI.Controllers;
 
@@ -29,7 +23,7 @@ public class EventsController : ControllerBase
     /// <param name="context">The data context.</param>
     public EventsController(ApplicationDbContext context)
     {
-        _context = context;
+        this._context = context;
     }
 
     // GET: api/Events
@@ -40,11 +34,11 @@ public class EventsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetEvents()
     {
-      if (_context.Events == null)
-      {
-          return NotFound();
-      }
-        return await _context.Events.ToListAsync();
+        if (this._context.Events == null)
+        {
+            return this.NotFound();
+        }
+        return await this._context.Events.ToListAsync();
     }
 
     // GET: api/Events/5
@@ -56,15 +50,15 @@ public class EventsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<CalendarEvent>> GetCalendarEvent(string id)
     {
-      if (_context.Events == null)
-      {
-          return NotFound();
-      }
-        var calendarEvent = await _context.Events.FindAsync(id);
+        if (this._context.Events == null)
+        {
+            return this.NotFound();
+        }
+        var calendarEvent = await this._context.Events.FindAsync(id);
 
         if (calendarEvent == null)
         {
-            return NotFound();
+            return this.NotFound();
         }
 
         return calendarEvent;
@@ -83,20 +77,20 @@ public class EventsController : ControllerBase
     {
         if (id != calendarEvent.Id)
         {
-            return BadRequest("Entity Id should be consistent between provided data and URI.");
+            return this.BadRequest("Entity Id should be consistent between provided data and URI.");
         }
 
-        _context.Entry(calendarEvent).State = EntityState.Modified;
+        this._context.Entry(calendarEvent).State = EntityState.Modified;
 
         try
         {
-            await _context.SaveChangesAsync();
+            await this._context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!CalendarEventExists(id))
+            if (!this.CalendarEventExists(id))
             {
-                return NotFound();
+                return this.NotFound();
             }
             else
             {
@@ -104,7 +98,7 @@ public class EventsController : ControllerBase
             }
         }
 
-        return NoContent();
+        return this.NoContent();
     }
 
     // POST: api/Events
@@ -117,20 +111,20 @@ public class EventsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<CalendarEvent>> PostCalendarEvent(CalendarEvent calendarEvent)
     {
-      if (_context.Events == null)
-      {
-          return Problem("Entity set 'ApplicationDbContext.Events'  is null.");
-      }
-        _context.Events.Add(calendarEvent);
+        if (this._context.Events == null)
+        {
+            return this.Problem("Entity set 'ApplicationDbContext.Events'  is null.");
+        }
+        this._context.Events.Add(calendarEvent);
         try
         {
-            await _context.SaveChangesAsync();
+            await this._context.SaveChangesAsync();
         }
         catch (DbUpdateException)
         {
-            if (CalendarEventExists(calendarEvent.Id))
+            if (this.CalendarEventExists(calendarEvent.Id))
             {
-                return Conflict("Id already exists.");
+                return this.Conflict("Id already exists.");
             }
             else
             {
@@ -138,7 +132,7 @@ public class EventsController : ControllerBase
             }
         }
 
-        return CreatedAtAction("GetCalendarEvent", new { id = calendarEvent.Id }, calendarEvent);
+        return this.CreatedAtAction("GetCalendarEvent", new { id = calendarEvent.Id }, calendarEvent);
     }
 
     // DELETE: api/Events/5
@@ -150,20 +144,20 @@ public class EventsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCalendarEvent(string id)
     {
-        if (_context.Events == null)
+        if (this._context.Events == null)
         {
-            return NotFound();
+            return this.NotFound();
         }
-        var calendarEvent = await _context.Events.FindAsync(id);
+        var calendarEvent = await this._context.Events.FindAsync(id);
         if (calendarEvent == null)
         {
-            return NotFound();
+            return this.NotFound();
         }
 
-        _context.Events.Remove(calendarEvent);
-        await _context.SaveChangesAsync();
+        this._context.Events.Remove(calendarEvent);
+        await this._context.SaveChangesAsync();
 
-        return NoContent();
+        return this.NoContent();
     }
 
     /// <summary>
@@ -173,6 +167,6 @@ public class EventsController : ControllerBase
     /// <returns>A value indicating whether or not an event exists with the provided Id.</returns>
     private bool CalendarEventExists(string id)
     {
-        return (_context.Events?.Any(e => e.Id == id)).GetValueOrDefault();
+        return (this._context.Events?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

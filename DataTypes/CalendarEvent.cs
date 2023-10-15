@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
-
-using Microsoft.AspNetCore.Components.Routing;
+﻿using System.Text.Json.Serialization;
 
 namespace EventSquareAPI.DataTypes;
 
@@ -15,7 +12,7 @@ public class CalendarEvent
     /// <summary>
     /// Private constructor for DB migrations.
     /// </summary>
-#pragma warning disable CS8618 
+#pragma warning disable CS8618
     private CalendarEvent() { }
 #pragma warning restore CS8618 
 
@@ -35,17 +32,17 @@ public class CalendarEvent
     /// <param name="location">The location of the event</param>
     public CalendarEvent(string id, DateTimeOffset startDateTime, DateTimeOffset endDateTime, string name, string description, bool isVirtual, bool isPhysical, Location? location, string owner, EventVisibility visibility, List<Rsvp> rsvps)
     {
-        Id = id;
-        StartDateTime = startDateTime;
-        EndDateTime = endDateTime;
-        Name = name;
-        Description = description;
-        IsVirtual = isVirtual;
-        IsPhysical = isPhysical;
-        Location = location;
-        Rsvps = rsvps;
-        Owner = owner;
-        Visibility = visibility;
+        this.Id = id;
+        this.StartDateTime = startDateTime;
+        this.EndDateTime = endDateTime;
+        this.Name = name;
+        this.Description = description;
+        this.IsVirtual = isVirtual;
+        this.IsPhysical = isPhysical;
+        this.Location = location;
+        this.Rsvps = rsvps;
+        this.Owner = owner;
+        this.Visibility = visibility;
     }
 
     // This is the one we use for EF Core as it doesn't require ID or RSVPs but can attach them post-construction if provided.
