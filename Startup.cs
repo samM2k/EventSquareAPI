@@ -1,8 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
 
-using EventSquareAPI.Security;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -161,7 +159,7 @@ public static class Startup
             };
         });
 
-        builder.Services.AddScoped<TokenGenerator>(provider =>
+        builder.Services.AddScoped(provider =>
         {
             var configuration = provider.GetRequiredService<IConfiguration>();
             var secret = configuration["Jwt:Secret"];
@@ -173,7 +171,7 @@ public static class Startup
                 throw new InvalidOperationException("Unable to get JWT Secret from Configuration.");
             }
 
-            return new TokenGenerator(secret, audience, issuer);
+            return new Security.TokenHandler(secret, audience, issuer);
         });
 
 

@@ -18,19 +18,19 @@ public class AccountController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _configuration;
-    private readonly TokenGenerator _tokenGenerator;
+    private readonly TokenHandler _tokenHandler;
 
     /// <summary>
     /// The account controller.
     /// </summary>
     /// <param name="userManager">The ASP.NET Identity UserManager.</param>
     /// <param name="configuration">The Configuration object.</param>
-    /// <param name="tokenGenerator">The Token Generator.</param>
-    public AccountController(UserManager<IdentityUser> userManager, IConfiguration configuration, TokenGenerator tokenGenerator)
+    /// <param name="tokenHandler">The Token Handler.</param>
+    public AccountController(UserManager<IdentityUser> userManager, IConfiguration configuration, TokenHandler tokenHandler)
     {
         this._userManager = userManager;
         this._configuration = configuration;
-        this._tokenGenerator = tokenGenerator;
+        this._tokenHandler = tokenHandler;
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public class AccountController : ControllerBase
 
             if (user != null && await this._userManager.CheckPasswordAsync(user, login.Password))
             {
-                JwtSecurityToken token = this._tokenGenerator.GetToken(user);
+                JwtSecurityToken token = this._tokenHandler.GetToken(user);
                 return this.Ok(new
                 {
                     Token = new JwtSecurityTokenHandler().WriteToken(token),

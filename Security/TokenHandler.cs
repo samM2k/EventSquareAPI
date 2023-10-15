@@ -8,9 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 namespace EventSquareAPI.Security;
 
 /// <summary>
-/// Handles token generation.
+/// Handles token generation and reading of claims.
 /// </summary>
-public class TokenGenerator
+public class TokenHandler
 {
     /// <summary>
     /// Constructs a token generator.
@@ -18,7 +18,7 @@ public class TokenGenerator
     /// <param name="audience"></param>
     /// <param name="issuer"></param>
     /// <param name="secret"></param>
-    public TokenGenerator(string secret, string? audience, string? issuer)
+    public TokenHandler(string secret, string? audience, string? issuer)
     {
         this.Secret = secret;
         this.Audience = audience;
