@@ -12,6 +12,56 @@ public class AccessControlModel<TEntity>
     where TEntity : class
 {
     /// <summary>
+    /// The dataset for the provided entity type.
+    /// </summary>
+    private DbSet<TEntity> DataSet { get; init; }
+
+    /// <summary>
+    /// Whether the entity has an owner field.
+    /// </summary>
+    private bool EntityHasOwnership { get; init; }
+
+    /// <summary>
+    /// Whether the entity has another way of assigning access to specific users.
+    /// </summary>
+    private bool EntityHasExplicitAccessControl { get; init; }
+
+    /// <summary>
+    /// Whether the entity has a visibility field (public, hidden, etc.)
+    /// </summary>
+    private bool EntityHasVisibility { get; init; }
+
+    /// <summary>
+    /// A function to retrieve the owner's userID from a record.
+    /// </summary>
+    /// <remarks>Only applicable if EntityHasOwnership == true</remarks>
+    private Func<TEntity, string>? GetOwnerIdFromEntity { get; init; }
+
+    /// <summary>
+    /// A function to check if a record is public.
+    /// </summary>
+    /// <remarks>Only applicable if EntityHasVisibility == true</remarks>
+    private Func<TEntity, bool>? CheckIfPublic { get; init; }
+
+    /// <summary>
+    /// A function to check if a record is hidden to all those except its owner.
+    /// </summary>
+    /// <remarks>Only applicable if EntityHasVisibility == true</remarks>
+    private Func<TEntity, bool>? CheckIfHidden { get; init; }
+
+    /// <summary>
+    /// A function to retrieve a list of users with explicit access to a record.
+    /// </summary>
+    /// <remarks>Only applicable if EntityHasExplicitAccess == true</remarks>
+    private Func<TEntity, List<string>>? GetUsersWithExplicitAccess { get; init; }
+
+    /// <summary>
+    /// The user manager.
+    /// </summary>
+    private UserManager<IdentityUser> UserManager { get; init; }
+
+
+    /// <summary>
     /// Access Control Model.
     /// </summary>
     /// <param name="dataSet">The dataset containing the entity type.</param>
@@ -46,31 +96,6 @@ public class AccessControlModel<TEntity>
     }
 
     /// <summary>
-    /// The dataset for the provided entity type.
-    /// </summary>
-    private DbSet<TEntity> DataSet { get; init; }
-
-    /// <summary>
-    /// Whether the entity has an owner field.
-    /// </summary>
-    private bool EntityHasOwnership { get; init; }
-
-    /// <summary>
-    /// Whether the entity has another way of assigning access to specific users.
-    /// </summary>
-    private bool EntityHasExplicitAccessControl { get; init; }
-
-    /// <summary>
-    /// Whether the entity has a visibility field (public, hidden, etc.)
-    /// </summary>
-    private bool EntityHasVisibility { get; init; }
-    private Func<TEntity, string>? GetOwnerIdFromEntity { get; init; }
-    private Func<TEntity, bool>? CheckIfPublic { get; init; }
-    private Func<TEntity, bool>? CheckIfHidden { get; init; }
-    private Func<TEntity, List<string>>? GetUsersWithExplicitAccess { get; init; }
-    private UserManager<IdentityUser> UserManager { get; init; }
-
-    /// <summary>
     /// Gets the records accessible to the given user.
     /// </summary>
     /// <param name="user">The user requesting the records.</param>
@@ -82,29 +107,6 @@ public class AccessControlModel<TEntity>
 
         var results = this.DataSet.AsEnumerable().Where(a => this.CanRead(a, userIdentity, userRoles));
         return results;
-    }
-
-    private async Task<string[]> GetRolesFromIdentityAsync(IdentityUser? userIdentity)
-    {
-        string[] userRoles = Array.Empty<string>();
-
-        if (userIdentity is not null)
-        {
-            userRoles = (await this.UserManager.GetRolesAsync(userIdentity)).ToArray();
-        }
-
-        return userRoles;
-    }
-
-    private async Task<IdentityUser?> GetUserFromClaimAsync(ClaimsPrincipal? user)
-    {
-        IdentityUser? userIdentity = null;
-        if (user != null)
-        {
-            userIdentity = await this.UserManager.GetUserAsync(user);
-        }
-
-        return userIdentity;
     }
 
     /// <summary>
@@ -120,6 +122,46 @@ public class AccessControlModel<TEntity>
         return this.CanRead(record, userIdentity, userRoles);
     }
 
+    /// <summary>
+    /// Get a list of roles from a nullable userIdentity object.
+    /// </summary>
+    /// <param name="userIdentity">The user to get roles for.</param>
+    /// <returns>The user's roles.</returns>
+    private async Task<string[]> GetRolesFromIdentityAsync(IdentityUser? userIdentity)
+    {
+        string[] userRoles = Array.Empty<string>();
+
+        if (userIdentity is not null)
+        {
+            userRoles = (await this.UserManager.GetRolesAsync(userIdentity)).ToArray();
+        }
+
+        return userRoles;
+    }
+
+    /// <summary>
+    /// Get the UserIdentity object associated with a given ClaimsPrincipal.
+    /// </summary>
+    /// <param name="user">The User ClaimsPrincipal/</param>
+    /// <returns>The User Identity.</returns>
+    private async Task<IdentityUser?> GetUserFromClaimAsync(ClaimsPrincipal? user)
+    {
+        IdentityUser? userIdentity = null;
+        if (user != null)
+        {
+            userIdentity = await this.UserManager.GetUserAsync(user);
+        }
+
+        return userIdentity;
+    }
+
+    /// <summary>
+    /// Check if a user in a given set of roles can read a given record.
+    /// </summary>
+    /// <param name="record">The record to check access for.</param>
+    /// <param name="user">The user to check access fro.</param>
+    /// <param name="userRoles">The user's roles.</param>
+    /// <returns></returns>
     private bool CanRead(TEntity record, IdentityUser? user, string[] userRoles)
     {
         bool isHidden = false;
