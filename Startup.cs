@@ -71,7 +71,7 @@ public static class Startup
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API Name", Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "EventSquare API", Version = "v1" });
 
             // Add security definitions and requirements for Swagger
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
