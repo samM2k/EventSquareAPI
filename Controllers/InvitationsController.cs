@@ -1,5 +1,6 @@
 ﻿using EventSquareAPI.DataTypes;
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,15 +13,28 @@ namespace EventSquareAPI.Controllers
     [ApiController]
     public class InvitationsController : ControllerBase
     {
+        private readonly AccessControlModel<Invitation> AccessControlModel;
+
         private readonly ApplicationDbContext _context;
 
         /// <summary>
         /// The invitations controller.
         /// </summary>
         /// <param name="context">The data context.</param>
-        public InvitationsController(ApplicationDbContext context)
+        /// <param name="userManager">The user manager.</param>
+        public InvitationsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             this._context = context;
+            this.AccessControlModel = new(
+                context.Invitations,
+                true,
+                true,
+                false,
+                inv => inv.ReceipientId,
+                (inv, user) => inv.SenderId == user.Id,
+                null,
+                null,
+                userManager);
         }
 
         // GET: api/Invitations
@@ -33,9 +47,10 @@ namespace EventSquareAPI.Controllers
         {
             if (this._context.Invitations == null)
             {
-                return this.NotFound();
+                return this.Problem("Entity set not found in database.");
             }
-            return await this._context.Invitations.ToListAsync();
+            var records = await this.AccessControlModel.GetRecordsAsync(this.HttpContext.User);
+            return this.Ok(records);
         }
 
         // GET: api/Invitations/5
