@@ -30,23 +30,7 @@ public class RsvpsController : ControllerBase
     public RsvpsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
     {
         this._context = context;
-        this.AccessControlModel = new(
-            context.Rsvps,
-            true,
-            true,
-            false,
-            // returns the RSVP recipient to enable them access as an "owner".
-            a => a.UserId,
-            // returns true if the requester (user) is the sender of the invite being RSVP'd to.
-            // By checking for an invite where eventId == rsvp.eventid, invite-sender == the RSVPer and the one who sent the invite is the current user.
-            (rsvp, user) => context.Invitations.Any(
-                inv =>
-                inv.SenderId == user.Id &&
-                inv.ReceipientId == rsvp.UserId &&
-                inv.EventId == rsvp.EventId),
-            null,
-            null,
-            userManager);
+        this.AccessControlModel = new RsvpAccessControlModel(context.Rsvps, context.Invitations, userManager);
     }
 
     // GET: api/Rsvps
