@@ -1,4 +1,6 @@
-﻿using EventSquareAPI.DataTypes;
+﻿using System.Net;
+
+using EventSquareAPI.DataTypes;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -93,6 +95,11 @@ public class EventsController : ControllerBase
         if (calendarEvent == null)
         {
             return this.NotFound();
+        }
+
+        if (!await this._accessControl.CanReadAsync(calendarEvent, this.HttpContext.User))
+        {
+            return new StatusCodeResult((int)HttpStatusCode.Forbidden);
         }
 
         return calendarEvent;
