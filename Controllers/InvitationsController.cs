@@ -3,6 +3,7 @@
 using EventSquareAPI.AccessControl;
 using EventSquareAPI.DataTypes;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -96,6 +97,7 @@ namespace EventSquareAPI.Controllers
         /// <param name="id">The unique identifier of hte invitation to update.</param>
         /// <param name="invitation">The updated invitation.</param>
         /// <returns>The HTTP Response.</returns>
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutInvitation(string id, Invitation invitation)
         {
@@ -144,6 +146,7 @@ namespace EventSquareAPI.Controllers
         /// </summary>
         /// <param name="invitation">The invitation.</param>
         /// <returns>The HTTP Response.</returns>
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Invitation>> PostInvitation(Invitation invitation)
         {
@@ -183,6 +186,7 @@ namespace EventSquareAPI.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the invitation to delete.</param>
         /// <returns>The HTTP Response.</returns>
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteInvitation(string id)
         {
