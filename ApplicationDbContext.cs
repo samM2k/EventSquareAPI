@@ -33,14 +33,19 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Rsvp> Rsvps { get; set; }
 
     /// <summary>
+    /// Gets or sets the Invitations.
+    /// </summary>
+    public DbSet<Invitation> Invitations { get; set; }
+
+    /// <summary>
     /// Invoked on creation of Entity Relationship Model.
     /// </summary>
     /// <param name="builder">The model builder.</param>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.Entity<CalendarEvent>().OwnsOne(a=>a.Location);
-        builder.Entity<Rsvp>().HasOne(a => a.Event).WithMany(a=>a.Rsvps).HasForeignKey(a=>a.EventId);
+        builder.Entity<CalendarEvent>().OwnsOne(a => a.Location);
+        builder.Entity<Rsvp>().HasOne(a => a.Event).WithMany(a => a.Rsvps).HasForeignKey(a => a.EventId);
     }
 
 }
