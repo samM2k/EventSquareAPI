@@ -15,9 +15,9 @@ public class JwtTokenHandler
     /// <summary>
     /// Constructs a token generator.
     /// </summary>
-    /// <param name="audience"></param>
-    /// <param name="issuer"></param>
-    /// <param name="secret"></param>
+    /// <param name="audience">The audience for this handler.</param>
+    /// <param name="issuer">The issuer of these tokens.</param>
+    /// <param name="secret">The JWT Secret key.</param>
     public JwtTokenHandler(string secret, string? audience, string? issuer)
     {
         this.Secret = secret;

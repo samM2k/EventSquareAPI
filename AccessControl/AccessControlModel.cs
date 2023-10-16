@@ -71,10 +71,10 @@ public abstract class AccessControlModel<TEntity> : IDisposable
     /// Access Control Model.
     /// </summary>
     /// <param name="dataSet">The dataset containing the entity type.</param>
-    /// <param name="userManager"></param>
-    /// <param name="entityHasOwnership"></param>
-    /// <param name="entityHasExplicitAccessControl"></param>
-    /// <param name="entityHasVisibility"></param>
+    /// <param name="userManager">The user manager.</param>
+    /// <param name="entityHasOwnership">Whether the entity has an ownership field.</param>
+    /// <param name="entityHasExplicitAccessControl">Whether the entity has an explicit access control mechanism.</param>
+    /// <param name="entityHasVisibility">Whether the entity has a visibility field.</param>
     public AccessControlModel(
         DbSet<TEntity> dataSet,
         UserManager<IdentityUser> userManager,

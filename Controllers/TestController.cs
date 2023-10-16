@@ -14,7 +14,7 @@ public class TestController : ControllerBase
     /// <summary>
     /// Test controller.
     /// </summary>
-    /// <param name="userManager"></param>
+    /// <param name="userManager">The user manager.</param>
     public TestController(UserManager<IdentityUser> userManager)
     {
         this._userManager = userManager;
