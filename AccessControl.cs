@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics;
+using System.Security.Claims;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -167,9 +168,11 @@ public class AccessControlModel<TEntity>
         bool isHidden = false;
         if (this.EntityHasVisibility)
         {
-            isHidden = this.CheckIfHidden!(record);
+            Debug.Assert(this.CheckIfPublic is not null);
+            Debug.Assert(this.CheckIfHidden is not null);
+            isHidden = this.CheckIfHidden(record);
 
-            bool isPublic = this.CheckIfPublic!(record);
+            bool isPublic = this.CheckIfPublic(record);
             if (isPublic)
             {
                 // Everyone else gets access if public.
@@ -191,7 +194,8 @@ public class AccessControlModel<TEntity>
 
         if (this.EntityHasOwnership)
         {
-            var isOwner = this.GetOwnerIdFromEntity!(record) == user.Id;
+            Debug.Assert(this.GetOwnerIdFromEntity is not null);
+            var isOwner = this.GetOwnerIdFromEntity(record) == user.Id;
             if (isOwner)
             {
                 // Owner gets access regardless of anything else.
@@ -208,7 +212,9 @@ public class AccessControlModel<TEntity>
 
         if (this.EntityHasExplicitAccessControl)
         {
-            bool userHasExplicitAccess = this.CheckIfUserHasExplicitAccess!(record, user);
+            Debug.Assert(this.CheckIfUserHasExplicitAccess is not null);
+
+            bool userHasExplicitAccess = this.CheckIfUserHasExplicitAccess(record, user);
             if (userHasExplicitAccess)
             {
                 // User has explicit permission to access.
