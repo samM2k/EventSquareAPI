@@ -53,7 +53,7 @@ public class AccessControlModel<TEntity>
     /// A function to retrieve a list of users with explicit access to a record.
     /// </summary>
     /// <remarks>Only applicable if EntityHasExplicitAccess == true</remarks>
-    private Func<TEntity, List<string>>? GetUsersWithExplicitAccess { get; init; }
+    private Func<TEntity, IdentityUser, bool>? CheckIfUserHasExplicitAccess { get; init; }
 
     /// <summary>
     /// The user manager.
@@ -71,7 +71,7 @@ public class AccessControlModel<TEntity>
     /// <param name="getOwnerIdFromEntity">Function to get owner Id from the entity.</param>
     /// <param name="checkIfPublic">Function to check if entity is public.</param>
     /// <param name="checkIfHidden">Function to check if entity is hidden.</param>
-    /// <param name="getUsersWithExplicitAccess">Function to get users with explicit access permission.</param>
+    /// <param name="checkIfUserHasExplicitAccess">Function to get users with explicit access permission.</param>
     /// <param name="userManager"></param>
     public AccessControlModel(
         DbSet<TEntity> dataSet,
@@ -79,7 +79,7 @@ public class AccessControlModel<TEntity>
         bool entityHasExplicitAccessControl,
         bool entityHasVisibility,
         Func<TEntity, string>? getOwnerIdFromEntity,
-        Func<TEntity, List<string>>? getUsersWithExplicitAccess,
+        Func<TEntity, IdentityUser, bool>? checkIfUserHasExplicitAccess,
         Func<TEntity, bool>? checkIfPublic,
         Func<TEntity, bool>? checkIfHidden,
         UserManager<IdentityUser> userManager)
@@ -91,7 +91,7 @@ public class AccessControlModel<TEntity>
         this.GetOwnerIdFromEntity = getOwnerIdFromEntity;
         this.CheckIfPublic = checkIfPublic;
         this.CheckIfHidden = checkIfHidden;
-        this.GetUsersWithExplicitAccess = getUsersWithExplicitAccess;
+        this.CheckIfUserHasExplicitAccess = checkIfUserHasExplicitAccess;
         this.UserManager = userManager;
     }
 
@@ -208,7 +208,7 @@ public class AccessControlModel<TEntity>
 
         if (this.EntityHasExplicitAccessControl)
         {
-            bool userHasExplicitAccess = this.GetUsersWithExplicitAccess!(record).Contains(user.Id);
+            bool userHasExplicitAccess = this.CheckIfUserHasExplicitAccess!(record, user);
             if (userHasExplicitAccess)
             {
                 // User has explicit permission to access.

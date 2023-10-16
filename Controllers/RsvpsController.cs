@@ -25,6 +25,8 @@ public class RsvpsController : ControllerBase
     public RsvpsController(ApplicationDbContext context)
     {
         this._context = context;
+        //Will complete once the invitations class has been configured.
+        //this.AccessControlModel = new(context.Rsvps, true, true, false, null, null, null, null, userManager);
     }
 
     // GET: api/Rsvps
