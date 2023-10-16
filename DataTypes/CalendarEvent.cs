@@ -69,7 +69,7 @@ public class CalendarEvent
     /// <summary>
     /// Gets the ID of the owner of the event.
     /// </summary>
-    public string Owner { get; init; }
+    public string Owner { get; set; }
 
     /// <summary>
     /// Gets or sets the visibility of the event.

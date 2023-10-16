@@ -164,7 +164,7 @@ public abstract class AccessControlModel<TEntity> : IDisposable
     /// </summary>
     /// <param name="user">The User ClaimsPrincipal/</param>
     /// <returns>The User Identity.</returns>
-    private async Task<IdentityUser?> GetUserFromClaimAsync(ClaimsPrincipal? user)
+    public async Task<IdentityUser?> GetUserFromClaimAsync(ClaimsPrincipal? user)
     {
         IdentityUser? userIdentity = null;
         if (user != null)

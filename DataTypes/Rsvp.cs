@@ -43,12 +43,12 @@ public class Rsvp
     /// <summary>
     /// Gets the Id of the event being responsed to.
     /// </summary>
-    public string EventId { get; init; }
+    public string EventId { get; set; }
 
     /// <summary>
     /// Gets the Id of the user responding to the event.
     /// </summary>
-    public string UserId { get; init; }
+    public string UserId { get; set; }
 
     /// <summary>
     /// Gets or sets the user's attendance status (Going, Not Going, etc.).

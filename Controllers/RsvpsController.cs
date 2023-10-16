@@ -1,4 +1,6 @@
-﻿using EventSquareAPI.AccessControl;
+﻿using System.Diagnostics;
+
+using EventSquareAPI.AccessControl;
 using EventSquareAPI.DataTypes;
 
 using Microsoft.AspNetCore.Authorization;
@@ -75,6 +77,11 @@ public class RsvpsController : ControllerBase, IDisposable
             return this.NotFound();
         }
 
+        if (!await this.AccessControlModel.CanReadAsync(rsvp, this.HttpContext.User))
+        {
+            return this.Problem(detail: "Not authorised to access RSVP.", statusCode: 403);
+        }
+
         return rsvp;
     }
 
@@ -92,6 +99,16 @@ public class RsvpsController : ControllerBase, IDisposable
         if (id != rsvp.Id)
         {
             return this.BadRequest();
+        }
+        var original = await this._context.Rsvps.FindAsync(id);
+        if (original is null)
+        {
+            return this.NotFound();
+        }
+
+        if (!await this.AccessControlModel.CanWriteAsync(rsvp, this.HttpContext.User))
+        {
+            return this.Problem(detail: "Not authorised to modify RSVP.", statusCode: 403);
         }
 
         this._context.Entry(rsvp).State = EntityState.Modified;
@@ -129,6 +146,12 @@ public class RsvpsController : ControllerBase, IDisposable
         {
             return this.Problem("Entity set 'ApplicationDbContext.Rsvps'  is null.");
         }
+
+        var userIdentity = await this.AccessControlModel.GetUserFromClaimAsync(this.HttpContext.User);
+
+        Debug.Assert(userIdentity is not null);
+        rsvp.UserId = userIdentity.Id;
+
         this._context.Rsvps.Add(rsvp);
         try
         {
@@ -163,10 +186,16 @@ public class RsvpsController : ControllerBase, IDisposable
         {
             return this.NotFound();
         }
+
         var rsvp = await this._context.Rsvps.FindAsync(id);
         if (rsvp == null)
         {
             return this.NotFound();
+        }
+
+        if (!await this.AccessControlModel.CanWriteAsync(rsvp, this.HttpContext.User))
+        {
+            return this.Problem(detail: "Not authorised to delete RSVP.", statusCode: 403);
         }
 
         this._context.Rsvps.Remove(rsvp);

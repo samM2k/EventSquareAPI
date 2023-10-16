@@ -1,4 +1,6 @@
-﻿using EventSquareAPI.AccessControl;
+﻿using System.Diagnostics;
+
+using EventSquareAPI.AccessControl;
 using EventSquareAPI.DataTypes;
 
 using Microsoft.AspNetCore.Identity;
@@ -78,6 +80,11 @@ namespace EventSquareAPI.Controllers
                 return this.NotFound();
             }
 
+            if (!await this.AccessControlModel.CanReadAsync(invitation, this.HttpContext.User))
+            {
+                return this.Problem(detail: "Not authorised to read invitatino.", statusCode: 403);
+            }
+
             return invitation;
         }
 
@@ -95,6 +102,18 @@ namespace EventSquareAPI.Controllers
             if (id != invitation.Id)
             {
                 return this.BadRequest();
+            }
+
+            var original = await this._context.Invitations.FindAsync(id);
+
+            if (original == null)
+            {
+                return this.NotFound();
+            }
+
+            if (!await this.AccessControlModel.CanWriteAsync(original, this.HttpContext.User))
+            {
+                return this.Problem(detail: "Not authorised to modify Invitation.", statusCode: 403);
             }
 
             this._context.Entry(invitation).State = EntityState.Modified;
@@ -132,6 +151,12 @@ namespace EventSquareAPI.Controllers
             {
                 return this.Problem("Entity set 'ApplicationDbContext.Invitations'  is null.");
             }
+
+            var userIdentity = await this.AccessControlModel.GetUserFromClaimAsync(this.HttpContext.User);
+
+            Debug.Assert(userIdentity is not null);
+            invitation.SenderId = userIdentity.Id;
+
             this._context.Invitations.Add(invitation);
             try
             {
@@ -169,6 +194,11 @@ namespace EventSquareAPI.Controllers
             if (invitation == null)
             {
                 return this.NotFound();
+            }
+
+            if (!await this.AccessControlModel.CanWriteAsync(invitation, this.HttpContext.User))
+            {
+                return this.Problem(detail: "Not authorised to delete invitation.", statusCode: 403);
             }
 
             this._context.Invitations.Remove(invitation);

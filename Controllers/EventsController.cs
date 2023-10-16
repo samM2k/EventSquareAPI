@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Net;
 
 using EventSquareAPI.AccessControl;
 using EventSquareAPI.DataTypes;
@@ -97,7 +96,7 @@ public class EventsController : ControllerBase, IDisposable
 
         if (!await this.AccessControlModel.CanReadAsync(calendarEvent, this.HttpContext.User))
         {
-            return new StatusCodeResult((int)HttpStatusCode.Forbidden);
+            return this.Problem(detail: "Not authorised to read event.", statusCode: 403);
         }
 
         return calendarEvent;
@@ -160,6 +159,12 @@ public class EventsController : ControllerBase, IDisposable
         {
             return this.Problem("Entity set 'ApplicationDbContext.Events'  is null.");
         }
+
+        var userIdentity = await this.AccessControlModel.GetUserFromClaimAsync(this.HttpContext.User);
+
+        Debug.Assert(userIdentity is not null);
+        calendarEvent.Owner = userIdentity.Id;
+
         this._context.Events.Add(calendarEvent);
         try
         {
