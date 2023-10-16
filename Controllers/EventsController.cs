@@ -19,7 +19,7 @@ public class EventsController : ControllerBase
     /// <summary>
     /// The access control model
     /// </summary>
-    private AccessControlModel<CalendarEvent> _accessControl;
+    private readonly AccessControlModel<CalendarEvent> _accessControl;
 
     /// <summary>
     /// The data context.

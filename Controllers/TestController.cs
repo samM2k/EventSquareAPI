@@ -35,7 +35,6 @@ public class TestController : ControllerBase
         {
             return this.Problem("User not found.");
         }
-        var roles = await this._userManager.GetRolesAsync(user);
         return new OkObjectResult(user);
     }
 }
