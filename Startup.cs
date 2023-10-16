@@ -155,13 +155,12 @@ public static class Startup
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = configuration["Jwt:Issuer"],
                 ValidAudience = configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? throw new InvalidOperationException("Unable to get JWT Secret from appSettings.")))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Unable to get JWT Secret from appSettings.")))
             };
         });
 
         builder.Services.AddScoped(provider =>
         {
-            var configuration = provider.GetRequiredService<IConfiguration>();
             var secret = configuration["Jwt:Secret"];
             var audience = configuration["Jwt:Audience"];
             var issuer = configuration["Jwt:Issuer"];

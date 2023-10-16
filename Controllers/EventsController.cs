@@ -1,6 +1,10 @@
-﻿using EventSquareAPI.DataTypes;
+﻿using System.Diagnostics;
 
+using EventSquareAPI.DataTypes;
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +18,11 @@ namespace EventSquareAPI.Controllers;
 public class EventsController : ControllerBase
 {
     /// <summary>
+    /// The user manager.
+    /// </summary>
+    private readonly UserManager<IdentityUser> _userManager;
+
+    /// <summary>
     /// The data context.
     /// </summary>
     private readonly ApplicationDbContext _context;
@@ -22,8 +31,10 @@ public class EventsController : ControllerBase
     /// The Events Controller.
     /// </summary>
     /// <param name="context">The data context.</param>
-    public EventsController(ApplicationDbContext context)
+    /// <param name="userManager">The user manager.</param>
+    public EventsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
     {
+        this._userManager = userManager;
         this._context = context;
     }
 
@@ -46,11 +57,34 @@ public class EventsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetEvents()
     {
-        if (this._context.Events == null)
+        var results = this._context.Events.AsQueryable();
+        if (results == null)
         {
-            return this.NotFound();
+            return this.Problem("Entity set 'ApplicationDbContext.Events' is null.");
         }
-        return await this._context.Events.ToListAsync();
+
+        //bool isAuthorized = false;
+        var authResult = await this.HttpContext.AuthenticateAsync();
+
+        if (authResult.Succeeded)
+        {
+            var jwtString = authResult.Ticket.Properties.GetTokenValue("access_token");
+            //isAuthorized = false;
+            var user = await this._userManager.GetUserAsync(this.HttpContext.User);
+            Debug.Assert(user is not null);
+            var roles = await this._userManager.GetRolesAsync(user);
+            if (roles.Contains("admin"))
+            {
+                return await results.ToListAsync();
+            }
+
+            results = results.Where(a => a.Owner == user.Id || a.Visibility == EventVisibility.Public).AsQueryable();
+            return await results.ToListAsync();
+        }
+        else
+        {
+            return await results.Where(a => a.Visibility == EventVisibility.Public).ToListAsync();
+        }
     }
 
     // GET: api/Events/5
