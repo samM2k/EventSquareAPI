@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics;
+using System.Security.Claims;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -104,6 +105,41 @@ public abstract class AccessControlModel<TEntity> : IDisposable
         var userIdentity = await this.UserManager.GetUserAsync(user);
         string[] userRoles = await this.GetRolesFromIdentityAsync(userIdentity);
         return this.CanRead(record, userIdentity, userRoles);
+    }
+
+    /// <summary>
+    /// Gets whether a user can update a given record.
+    /// </summary>
+    /// <param name="record">The record to check permissions for.</param>
+    /// <param name="user">The user to check permissions for.</param>
+    /// <returns></returns>
+    public virtual async Task<bool> CanWriteAsync(TEntity record, ClaimsPrincipal user)
+    {
+        try
+        {
+            var userIdentity = await this.GetUserFromClaimAsync(user);
+            var userRoles = await this.GetRolesFromIdentityAsync(userIdentity);
+            return this.CanWrite(record, userIdentity, userRoles);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine("Exception occurred in CanWriteAsync:");
+            Trace.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if a user or can modify a given record.
+    /// </summary>
+    /// <param name="record">The record to check for permission to modify.</param>
+    /// <param name="userIdentity">The user to check permission for.</param>
+    /// <param name="userRoles">The user's roles.</param>
+    /// <returns></returns>
+    public virtual bool CanWrite(TEntity record, IdentityUser? userIdentity, string[] userRoles)
+    {
+        return this.GetOwnerIdFromEntity(record) == userIdentity?.Id ||
+            userRoles.Contains("admin", StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>

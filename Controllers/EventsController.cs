@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 
 using EventSquareAPI.AccessControl;
 using EventSquareAPI.DataTypes;
@@ -114,30 +115,34 @@ public class EventsController : ControllerBase, IDisposable
     [Authorize]
     public async Task<IActionResult> PutCalendarEvent(string id, CalendarEvent calendarEvent)
     {
+        var original = await this._context.Events.FindAsync(id);
+        if (original is null)
+            return this.NotFound();
+
         if (id != calendarEvent.Id)
         {
             return this.BadRequest("Entity Id should be consistent between provided data and URI.");
         }
 
-        this._context.Entry(calendarEvent).State = EntityState.Modified;
-
-        try
+        // Check using the original in case owner is updated.
+        if (await this.AccessControlModel.CanWriteAsync(original, this.HttpContext.User))
         {
-            await this._context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!this.CalendarEventExists(id))
+            this._context.Entry(calendarEvent).State = EntityState.Modified;
+
+            try
             {
-                return this.NotFound();
+                await this._context.SaveChangesAsync();
             }
-            else
+            catch (DbUpdateConcurrencyException ex)
             {
-                throw;
+                Trace.WriteLine("Exception occurred on updating database.");
+                Trace.WriteLine(ex.Message);
+                return this.Problem("Exception occurred on updating database.");
             }
+            return this.NoContent();
         }
 
-        return this.NoContent();
+        return this.Problem(detail: "Not authorised to update event.", statusCode: 403);
     }
 
     // POST: api/Events
@@ -160,7 +165,7 @@ public class EventsController : ControllerBase, IDisposable
         {
             await this._context.SaveChangesAsync();
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException ex)
         {
             if (this.CalendarEventExists(calendarEvent.Id))
             {
@@ -168,7 +173,9 @@ public class EventsController : ControllerBase, IDisposable
             }
             else
             {
-                throw;
+                Trace.WriteLine("Exception occurred on updating database.");
+                Trace.WriteLine(ex.Message);
+                return this.Problem("Exception occurred on updating database.");
             }
         }
 
@@ -195,10 +202,15 @@ public class EventsController : ControllerBase, IDisposable
             return this.NotFound();
         }
 
-        this._context.Events.Remove(calendarEvent);
-        await this._context.SaveChangesAsync();
+        if (await this.AccessControlModel.CanWriteAsync(calendarEvent, this.HttpContext.User))
+        {
+            this._context.Events.Remove(calendarEvent);
+            await this._context.SaveChangesAsync();
+            return this.NoContent();
+        }
 
-        return this.NoContent();
+        return this.Problem(detail: "Not authorised to delete event.", statusCode: 403);
+
     }
 
     /// <summary>
