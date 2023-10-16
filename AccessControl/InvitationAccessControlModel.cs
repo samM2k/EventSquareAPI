@@ -15,24 +15,9 @@ public class InvitationAccessControlModel : AccessControlModel<Invitation>
     /// </summary>
     /// <param name="invitations">The invitations dataset.</param>
     /// <param name="userManager">The user manager.</param>
-    public InvitationAccessControlModel(DbSet<Invitation> invitations, UserManager<IdentityUser> userManager) : base(invitations, userManager)
+    public InvitationAccessControlModel(DbSet<Invitation> invitations, UserManager<IdentityUser> userManager) : base(invitations, userManager, true, true, false)
     {
     }
-
-    /// <summary>
-    /// Gets a value indicating whether this entity type has ownership.
-    /// </summary>
-    public override bool EntityHasOwnership => true;
-
-    /// <summary>
-    /// Gets a value indicating whether this entity type has an explicit access control mechanism.
-    /// </summary>
-    public override bool EntityHasExplicitAccessControl => true;
-
-    /// <summary>
-    /// Gets whether this entity type has a visibility field.
-    /// </summary>
-    public override bool EntityHasVisibility => false;
 
     /// <summary>
     /// Checks if a given record is hidden.

@@ -18,26 +18,10 @@ public class EventAccessControlModel : AccessControlModel<CalendarEvent>
     /// <param name="events">The events dataset.</param>
     /// <param name="invitations">The invitations dataset.</param>
     /// <param name="userManager">The user manager.</param>
-    public EventAccessControlModel(DbSet<CalendarEvent> events, DbSet<Invitation> invitations, UserManager<IdentityUser> userManager) : base(events, userManager)
+    public EventAccessControlModel(DbSet<CalendarEvent> events, DbSet<Invitation> invitations, UserManager<IdentityUser> userManager) : base(events, userManager, true, true, true)
     {
         this.Invitations = invitations;
     }
-
-    /// <summary>
-    /// Gets a value indicating whether the entity has ownership.
-    /// </summary>
-    public override bool EntityHasOwnership => true;
-
-    /// <summary>
-    /// Gets a value indicating whether the entity has an axplicit access control mechanism.
-    /// </summary>
-    public override bool EntityHasExplicitAccessControl => true;
-
-    /// <summary>
-    /// Gets a value indicating whether the entity has a Visibility property.
-    /// </summary>
-    public override bool EntityHasVisibility => true;
-
 
     /// <summary>
     /// Check if a record is hidden.

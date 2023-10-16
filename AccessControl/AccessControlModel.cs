@@ -25,17 +25,17 @@ public abstract class AccessControlModel<TEntity> : IDisposable
     /// <summary>
     /// Whether the entity has an owner field.
     /// </summary>
-    public abstract bool EntityHasOwnership { get; }
+    private readonly bool EntityHasOwnership;
 
     /// <summary>
     /// Whether the entity has another way of assigning access to specific users.
     /// </summary>
-    public abstract bool EntityHasExplicitAccessControl { get; }
+    private readonly bool EntityHasExplicitAccessControl;
 
     /// <summary>
     /// Whether the entity has a visibility field (public, hidden, etc.)
     /// </summary>
-    public abstract bool EntityHasVisibility { get; }
+    private readonly bool EntityHasVisibility;
 
     /// <summary>
     /// A function to retrieve the owner's userID from a record.
@@ -72,12 +72,21 @@ public abstract class AccessControlModel<TEntity> : IDisposable
     /// </summary>
     /// <param name="dataSet">The dataset containing the entity type.</param>
     /// <param name="userManager"></param>
+    /// <param name="entityHasOwnership"></param>
+    /// <param name="entityHasExplicitAccessControl"></param>
+    /// <param name="entityHasVisibility"></param>
     public AccessControlModel(
         DbSet<TEntity> dataSet,
-        UserManager<IdentityUser> userManager)
+        UserManager<IdentityUser> userManager,
+        bool entityHasOwnership,
+        bool entityHasExplicitAccessControl,
+        bool entityHasVisibility)
     {
         this.DataSet = dataSet;
         this.UserManager = userManager;
+        this.EntityHasOwnership = entityHasOwnership;
+        this.EntityHasVisibility = entityHasVisibility;
+        this.EntityHasExplicitAccessControl = entityHasExplicitAccessControl;
     }
 
     /// <summary>

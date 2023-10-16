@@ -21,25 +21,10 @@ public class RsvpAccessControlModel : AccessControlModel<Rsvp>
     /// <param name="rsvps">The RSVPs dataset.</param>
     /// <param name="invitations">The invitations dataset.</param>
     /// <param name="userManager">The user manager.</param>
-    public RsvpAccessControlModel(DbSet<Rsvp> rsvps, DbSet<Invitation> invitations, UserManager<IdentityUser> userManager) : base(rsvps, userManager)
+    public RsvpAccessControlModel(DbSet<Rsvp> rsvps, DbSet<Invitation> invitations, UserManager<IdentityUser> userManager) : base(rsvps, userManager, true, true, false)
     {
         this.Invitations = invitations;
     }
-
-    /// <summary>
-    /// Gets whether the entity type has an owner field.
-    /// </summary>
-    public override bool EntityHasOwnership => true;
-
-    /// <summary>
-    /// Gets whether the entity type has an explicit access control mechanism.
-    /// </summary>
-    public override bool EntityHasExplicitAccessControl => true;
-
-    /// <summary>
-    /// Gets whether the entity has a visibility field.
-    /// </summary>
-    public override bool EntityHasVisibility => false;
 
     /// <summary>
     /// Checks whether this record is hidden.
