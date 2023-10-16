@@ -18,7 +18,7 @@ public class AccountController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _configuration;
-    private readonly TokenHandler _tokenHandler;
+    private readonly JwtTokenHandler _tokenHandler;
 
     /// <summary>
     /// The account controller.
@@ -26,7 +26,7 @@ public class AccountController : ControllerBase
     /// <param name="userManager">The ASP.NET Identity UserManager.</param>
     /// <param name="configuration">The Configuration object.</param>
     /// <param name="tokenHandler">The Token Handler.</param>
-    public AccountController(UserManager<IdentityUser> userManager, IConfiguration configuration, TokenHandler tokenHandler)
+    public AccountController(UserManager<IdentityUser> userManager, IConfiguration configuration, JwtTokenHandler tokenHandler)
     {
         this._userManager = userManager;
         this._configuration = configuration;

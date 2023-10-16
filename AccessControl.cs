@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Security.Claims;
+
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventSquareAPI;
@@ -20,7 +22,8 @@ public class AccessControl<TEntity>
     /// <param name="checkIfPublic">Function to check if entity is public.</param>
     /// <param name="checkIfHidden">Function to check if entity is hidden.</param>
     /// <param name="getUsersWithExplicitAccess">Function to get users with explicit access permission.</param>
-    public AccessControl(DbSet<TEntity> dataSet, bool entityHasOwnership, bool entityHasExplicitAccessControl, bool entityHasVisibility, Func<TEntity, string>? getOwnerIdFromEntity, Func<TEntity, bool>? checkIfPublic, Func<TEntity, bool>? checkIfHidden, Func<TEntity, List<string>>? getUsersWithExplicitAccess)
+    /// <param name="userManager"></param>
+    public AccessControl(DbSet<TEntity> dataSet, bool entityHasOwnership, bool entityHasExplicitAccessControl, bool entityHasVisibility, Func<TEntity, string>? getOwnerIdFromEntity, Func<TEntity, bool>? checkIfPublic, Func<TEntity, bool>? checkIfHidden, Func<TEntity, List<string>>? getUsersWithExplicitAccess, UserManager<IdentityUser> userManager)
     {
         this.DataSet = dataSet;
         this.EntityHasOwnership = entityHasOwnership;
@@ -30,6 +33,7 @@ public class AccessControl<TEntity>
         this.CheckIfPublic = checkIfPublic;
         this.CheckIfHidden = checkIfHidden;
         this.GetUsersWithExplicitAccess = getUsersWithExplicitAccess;
+        this.UserManager = userManager;
     }
 
     /// <summary>
@@ -55,24 +59,51 @@ public class AccessControl<TEntity>
     private Func<TEntity, bool>? CheckIfPublic { get; init; }
     private Func<TEntity, bool>? CheckIfHidden { get; init; }
     private Func<TEntity, List<string>>? GetUsersWithExplicitAccess { get; init; }
+    private UserManager<IdentityUser> UserManager { get; init; }
 
     /// <summary>
     /// Gets the records accessible to the given user.
     /// </summary>
     /// <param name="user">The user requesting the records.</param>
     /// <returns>The filtered records.</returns>
-    public IEnumerable<TEntity> GetRecords(IdentityUser? user)
+    public async Task<IEnumerable<TEntity>> GetRecordsAsync(ClaimsPrincipal? user)
     {
-        var results = this.DataSet.AsEnumerable();
-        results = results.Where(a => this.CanRead(a, user));
+        IdentityUser? userIdentity = await this.GetUserFromClaimAsync(user);
+        string[] userRoles = await this.GetRolesFromIdentityAsync(userIdentity);
+
+        var results = this.DataSet.Where(a => this.CanRead(a, userIdentity, userRoles));
         return results;
     }
 
-    private bool CanRead(TEntity a, IdentityUser? user)
+    private async Task<string[]> GetRolesFromIdentityAsync(IdentityUser? userIdentity)
     {
+        string[] userRoles = Array.Empty<string>();
+
+        if (userIdentity is not null)
+        {
+            userRoles = (await this.UserManager.GetRolesAsync(userIdentity)).ToArray();
+        }
+
+        return userRoles;
+    }
+
+    private async Task<IdentityUser?> GetUserFromClaimAsync(ClaimsPrincipal? user)
+    {
+        IdentityUser? userIdentity = null;
+        if (user != null)
+        {
+            userIdentity = await this.UserManager.GetUserAsync(user);
+        }
+
+        return userIdentity;
+    }
+
+    private bool CanRead(TEntity a, IdentityUser? user, string[] userRoles)
+    {
+        bool isHidden = false;
         if (this.EntityHasVisibility)
         {
-            bool isHidden = this.CheckIfHidden!(a);
+            isHidden = this.CheckIfHidden!(a);
 
             bool isPublic = this.CheckIfPublic!(a);
             if (isPublic)
@@ -80,15 +111,22 @@ public class AccessControl<TEntity>
                 // Everyone else gets access if public.
                 return true;
             }
-            else if (isHidden)
-            {
-                // Nobody else gets access if hidden.
-                return false;
-            }
         }
 
         if (user is null)
         {
+            return false;
+        }
+
+
+        if (userRoles.Contains("admin"))
+        {
+            return true;
+        }
+
+        if (isHidden)
+        {
+            // Nobody else gets access if hidden.
             return false;
         }
 

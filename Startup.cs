@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json.Serialization;
 
+using EventSquareAPI.Security;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -170,7 +172,7 @@ public static class Startup
                 throw new InvalidOperationException("Unable to get JWT Secret from Configuration.");
             }
 
-            return new Security.TokenHandler(secret, audience, issuer);
+            return new JwtTokenHandler(secret, audience, issuer);
         });
 
 

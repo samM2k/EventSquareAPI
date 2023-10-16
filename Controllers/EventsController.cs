@@ -35,7 +35,7 @@ public class EventsController : ControllerBase
     {
         this._userManager = userManager;
         this._context = context;
-        this._accessControl = new(this._context.Events, true, false, true, a => a.Owner, a => a.Visibility == EventVisibility.Public, a => a.Visibility == EventVisibility.Hidden, null);
+        this._accessControl = new(this._context.Events, true, false, true, a => a.Owner, a => a.Visibility == EventVisibility.Public, a => a.Visibility == EventVisibility.Hidden, null, userManager);
     }
 
     /// <summary>
@@ -63,12 +63,8 @@ public class EventsController : ControllerBase
             return this.Problem("Entity set 'ApplicationDbContext.Events' is null.");
         }
 
-        var user = await this._userManager.GetUserAsync(this.HttpContext.User);
-
-        var returnValue = this._accessControl.GetRecords(user);
+        var returnValue = await this._accessControl.GetRecordsAsync(this.HttpContext.User);
         return this.Ok(returnValue);
-        //return await results.Where(a => a.Visibility == EventVisibility.Public).ToListAsync();
-
     }
 
     // GET: api/Events/5
