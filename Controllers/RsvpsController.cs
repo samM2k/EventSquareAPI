@@ -1,6 +1,7 @@
 ﻿using EventSquareAPI.DataTypes;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,8 @@ namespace EventSquareAPI.Controllers;
 [ApiController]
 public class RsvpsController : ControllerBase
 {
+    private readonly AccessControlModel<Rsvp> AccessControlModel;
+
     /// <summary>
     /// The data context.
     /// </summary>
@@ -22,11 +25,27 @@ public class RsvpsController : ControllerBase
     /// The RSVPs Controller.
     /// </summary>
     /// <param name="context">The data context.</param>
-    public RsvpsController(ApplicationDbContext context)
+    /// <param name="userManager">The user manager.</param>
+    public RsvpsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
     {
         this._context = context;
-        //Will complete once the invitations class has been configured.
-        //this.AccessControlModel = new(context.Rsvps, true, true, false, null, null, null, null, userManager);
+        this.AccessControlModel = new(
+            context.Rsvps,
+            true,
+            true,
+            false,
+            // returns the RSVP recipient to enable them access as an "owner".
+            a => a.UserId,
+            // returns true if the requester (user) is the sender of the invite being RSVP'd to.
+            // By checking for an invite where eventId == rsvp.eventid, invite-sender == the RSVPer and the one who sent the invite is the current user.
+            (rsvp, user) => context.Invitations.Any(
+                inv =>
+                inv.SenderId == user.Id &&
+                inv.ReceipientId == rsvp.UserId &&
+                inv.EventId == rsvp.EventId),
+            null,
+            null,
+            userManager);
     }
 
     // GET: api/Rsvps
@@ -41,7 +60,9 @@ public class RsvpsController : ControllerBase
         {
             return this.Problem("Entity set not found in database.");
         }
-        return await this._context.Rsvps.ToListAsync();
+
+        var result = await this.AccessControlModel.GetRecordsAsync(this.HttpContext.User);
+        return this.Ok(result);
     }
 
     // GET: api/Rsvps/5
