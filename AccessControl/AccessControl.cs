@@ -3,10 +3,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventSquareAPI;
+namespace EventSquareAPI.AccessControl;
 
 /// <summary>
-/// Model for managing data access control, be it Role-based or entity-ownership-based.
+/// Abstract class for managing data access control.
 /// </summary>
 public abstract class AccessControlModel<TEntity>
     where TEntity : class
@@ -19,20 +19,20 @@ public abstract class AccessControlModel<TEntity>
     /// <summary>
     /// Whether the entity has an owner field.
     /// </summary>
-    private readonly bool EntityHasOwnership;
+    public abstract bool EntityHasOwnership { get; }
 
     /// <summary>
     /// Whether the entity has another way of assigning access to specific users.
     /// </summary>
-    private readonly bool EntityHasExplicitAccessControl;
+    public abstract bool EntityHasExplicitAccessControl { get; }
 
     /// <summary>
     /// Whether the entity has a visibility field (public, hidden, etc.)
     /// </summary>
-    private readonly bool EntityHasVisibility;
+    public abstract bool EntityHasVisibility { get; }
 
     /// <summary>
-    /// Retrieve the owner's userID from a record.
+    /// A function to retrieve the owner's userID from a record.
     /// </summary>
     /// <remarks>Only applicable if EntityHasOwnership</remarks>
     public abstract string GetOwnerIdFromEntity(TEntity record);

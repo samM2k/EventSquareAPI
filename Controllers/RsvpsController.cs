@@ -1,4 +1,5 @@
-﻿using EventSquareAPI.DataTypes;
+﻿using EventSquareAPI.AccessControl;
+using EventSquareAPI.DataTypes;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

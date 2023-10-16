@@ -1,5 +1,6 @@
 ﻿using System.Net;
 
+using EventSquareAPI.AccessControl;
 using EventSquareAPI.DataTypes;
 
 using Microsoft.AspNetCore.Authorization;
@@ -36,16 +37,7 @@ public class EventsController : ControllerBase
         UserManager<IdentityUser> userManager)
     {
         this._context = context;
-        this._accessControl = new(
-            this._context.Events,
-            true,
-            false,
-            true,
-            a => a.Owner,
-            null,
-            a => a.Visibility == EventVisibility.Public,
-            a => a.Visibility == EventVisibility.Hidden,
-            userManager);
+        this._accessControl = new EventAccessControlModel(context.Events, context.Invitations, userManager);
     }
 
     /// <summary>
