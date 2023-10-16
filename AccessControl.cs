@@ -112,9 +112,15 @@ public class AccessControlModel<TEntity>
     /// </summary>
     /// <param name="record">The record being checked.</param>
     /// <param name="user">The user being checked.</param>
-    /// <param name="userRoles">The user's roles being checked.</param>
     /// <returns>A value indicating whether the user can read this record.</returns>
-    public bool CanRead(TEntity record, IdentityUser? user, string[] userRoles)
+    public async Task<bool> CanReadAsync(TEntity record, ClaimsPrincipal user)
+    {
+        var userIdentity = await this.UserManager.GetUserAsync(user);
+        string[] userRoles = await this.GetRolesFromIdentityAsync(userIdentity);
+        return this.CanRead(record, userIdentity, userRoles);
+    }
+
+    private bool CanRead(TEntity record, IdentityUser? user, string[] userRoles)
     {
         bool isHidden = false;
         if (this.EntityHasVisibility)
