@@ -80,7 +80,7 @@ public class AccessControlModel<TEntity>
         IdentityUser? userIdentity = await this.GetUserFromClaimAsync(user);
         string[] userRoles = await this.GetRolesFromIdentityAsync(userIdentity);
 
-        var results = this.DataSet.Where(a => this.CanRead(a, userIdentity, userRoles));
+        var results = this.DataSet.AsEnumerable().Where(a => this.CanRead(a, userIdentity, userRoles));
         return results;
     }
 
@@ -146,11 +146,6 @@ public class AccessControlModel<TEntity>
             return true;
         }
 
-        if (isHidden)
-        {
-            // Nobody else gets access if hidden.
-            return false;
-        }
 
         if (this.EntityHasOwnership)
         {
@@ -160,6 +155,12 @@ public class AccessControlModel<TEntity>
                 // Owner gets access regardless of anything else.
                 return true;
             }
+        }
+
+        if (isHidden)
+        {
+            // Nobody else gets access if hidden.
+            return false;
         }
 
 
