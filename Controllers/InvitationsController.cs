@@ -26,15 +26,8 @@ namespace EventSquareAPI.Controllers
         public InvitationsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             this._context = context;
-            this.AccessControlModel = new(
+            this.AccessControlModel = new InvitationAccessControlModel(
                 context.Invitations,
-                true,
-                true,
-                false,
-                inv => inv.ReceipientId,
-                (inv, user) => inv.SenderId == user.Id,
-                null,
-                null,
                 userManager);
         }
 
