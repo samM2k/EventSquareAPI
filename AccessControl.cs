@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +8,7 @@ namespace EventSquareAPI;
 /// <summary>
 /// Model for managing data access control, be it Role-based or entity-ownership-based.
 /// </summary>
-public class AccessControlModel<TEntity>
+public abstract class AccessControlModel<TEntity>
     where TEntity : class
 {
     /// <summary>
@@ -20,41 +19,41 @@ public class AccessControlModel<TEntity>
     /// <summary>
     /// Whether the entity has an owner field.
     /// </summary>
-    private bool EntityHasOwnership { get; init; }
+    private readonly bool EntityHasOwnership;
 
     /// <summary>
     /// Whether the entity has another way of assigning access to specific users.
     /// </summary>
-    private bool EntityHasExplicitAccessControl { get; init; }
+    private readonly bool EntityHasExplicitAccessControl;
 
     /// <summary>
     /// Whether the entity has a visibility field (public, hidden, etc.)
     /// </summary>
-    private bool EntityHasVisibility { get; init; }
+    private readonly bool EntityHasVisibility;
 
     /// <summary>
-    /// A function to retrieve the owner's userID from a record.
+    /// Retrieve the owner's userID from a record.
     /// </summary>
-    /// <remarks>Only applicable if EntityHasOwnership == true</remarks>
-    private Func<TEntity, string>? GetOwnerIdFromEntity { get; init; }
+    /// <remarks>Only applicable if EntityHasOwnership</remarks>
+    public abstract string GetOwnerIdFromEntity(TEntity record);
 
     /// <summary>
     /// A function to check if a record is public.
     /// </summary>
     /// <remarks>Only applicable if EntityHasVisibility == true</remarks>
-    private Func<TEntity, bool>? CheckIfPublic { get; init; }
+    public abstract bool CheckIfPublic(TEntity record);
 
     /// <summary>
     /// A function to check if a record is hidden to all those except its owner.
     /// </summary>
     /// <remarks>Only applicable if EntityHasVisibility == true</remarks>
-    private Func<TEntity, bool>? CheckIfHidden { get; init; }
+    public abstract bool CheckIfHidden(TEntity record);
 
     /// <summary>
     /// A function to retrieve a list of users with explicit access to a record.
     /// </summary>
     /// <remarks>Only applicable if EntityHasExplicitAccess == true</remarks>
-    private Func<TEntity, IdentityUser, bool>? CheckIfUserHasExplicitAccess { get; init; }
+    public abstract bool CheckIfUserHasExplicitAccess(TEntity record, IdentityUser user);
 
     /// <summary>
     /// The user manager.
@@ -66,33 +65,12 @@ public class AccessControlModel<TEntity>
     /// Access Control Model.
     /// </summary>
     /// <param name="dataSet">The dataset containing the entity type.</param>
-    /// <param name="entityHasOwnership">Whether or not the entity has an Owner field.</param>
-    /// <param name="entityHasExplicitAccessControl">Whether or not the entity has explicit access control.</param>
-    /// <param name="entityHasVisibility">Whether or not the entity has a visibility field.</param>
-    /// <param name="getOwnerIdFromEntity">Function to get owner Id from the entity.</param>
-    /// <param name="checkIfPublic">Function to check if entity is public.</param>
-    /// <param name="checkIfHidden">Function to check if entity is hidden.</param>
-    /// <param name="checkIfUserHasExplicitAccess">Function to get users with explicit access permission.</param>
     /// <param name="userManager"></param>
     public AccessControlModel(
         DbSet<TEntity> dataSet,
-        bool entityHasOwnership,
-        bool entityHasExplicitAccessControl,
-        bool entityHasVisibility,
-        Func<TEntity, string>? getOwnerIdFromEntity,
-        Func<TEntity, IdentityUser, bool>? checkIfUserHasExplicitAccess,
-        Func<TEntity, bool>? checkIfPublic,
-        Func<TEntity, bool>? checkIfHidden,
         UserManager<IdentityUser> userManager)
     {
         this.DataSet = dataSet;
-        this.EntityHasOwnership = entityHasOwnership;
-        this.EntityHasExplicitAccessControl = entityHasExplicitAccessControl;
-        this.EntityHasVisibility = entityHasVisibility;
-        this.GetOwnerIdFromEntity = getOwnerIdFromEntity;
-        this.CheckIfPublic = checkIfPublic;
-        this.CheckIfHidden = checkIfHidden;
-        this.CheckIfUserHasExplicitAccess = checkIfUserHasExplicitAccess;
         this.UserManager = userManager;
     }
 
@@ -168,8 +146,6 @@ public class AccessControlModel<TEntity>
         bool isHidden = false;
         if (this.EntityHasVisibility)
         {
-            Debug.Assert(this.CheckIfPublic is not null);
-            Debug.Assert(this.CheckIfHidden is not null);
             isHidden = this.CheckIfHidden(record);
 
             bool isPublic = this.CheckIfPublic(record);
@@ -194,7 +170,6 @@ public class AccessControlModel<TEntity>
 
         if (this.EntityHasOwnership)
         {
-            Debug.Assert(this.GetOwnerIdFromEntity is not null);
             var isOwner = this.GetOwnerIdFromEntity(record) == user.Id;
             if (isOwner)
             {
@@ -212,8 +187,6 @@ public class AccessControlModel<TEntity>
 
         if (this.EntityHasExplicitAccessControl)
         {
-            Debug.Assert(this.CheckIfUserHasExplicitAccess is not null);
-
             bool userHasExplicitAccess = this.CheckIfUserHasExplicitAccess(record, user);
             if (userHasExplicitAccess)
             {
