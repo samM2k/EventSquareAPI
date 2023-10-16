@@ -1,8 +1,5 @@
-﻿using System.Diagnostics;
+﻿using EventSquareAPI.DataTypes;
 
-using EventSquareAPI.DataTypes;
-
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +14,8 @@ namespace EventSquareAPI.Controllers;
 [ApiController]
 public class EventsController : ControllerBase
 {
+    private AccessControl<CalendarEvent> _accessControl;
+
     /// <summary>
     /// The user manager.
     /// </summary>
@@ -36,6 +35,7 @@ public class EventsController : ControllerBase
     {
         this._userManager = userManager;
         this._context = context;
+        this._accessControl = new(this._context.Events, true, false, true, a => a.Owner, a => a.Visibility == EventVisibility.Public, a => a.Visibility == EventVisibility.Hidden, null);
     }
 
     /// <summary>
@@ -57,34 +57,18 @@ public class EventsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetEvents()
     {
-        var results = this._context.Events.AsQueryable();
+        var results = this._context.Events.AsEnumerable();
         if (results == null)
         {
             return this.Problem("Entity set 'ApplicationDbContext.Events' is null.");
         }
 
-        //bool isAuthorized = false;
-        var authResult = await this.HttpContext.AuthenticateAsync();
+        var user = await this._userManager.GetUserAsync(this.HttpContext.User);
 
-        if (authResult.Succeeded)
-        {
-            var jwtString = authResult.Ticket.Properties.GetTokenValue("access_token");
-            //isAuthorized = false;
-            var user = await this._userManager.GetUserAsync(this.HttpContext.User);
-            Debug.Assert(user is not null);
-            var roles = await this._userManager.GetRolesAsync(user);
-            if (roles.Contains("admin"))
-            {
-                return await results.ToListAsync();
-            }
+        var returnValue = this._accessControl.GetRecords(user);
+        return this.Ok(returnValue);
+        //return await results.Where(a => a.Visibility == EventVisibility.Public).ToListAsync();
 
-            results = results.Where(a => a.Owner == user.Id || a.Visibility == EventVisibility.Public).AsQueryable();
-            return await results.ToListAsync();
-        }
-        else
-        {
-            return await results.Where(a => a.Visibility == EventVisibility.Public).ToListAsync();
-        }
     }
 
     // GET: api/Events/5
