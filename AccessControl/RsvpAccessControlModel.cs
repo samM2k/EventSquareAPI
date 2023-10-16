@@ -13,7 +13,7 @@ public class RsvpAccessControlModel : AccessControlModel<Rsvp>
     /// <summary>
     /// The invitations dataset.
     /// </summary>
-    private DbSet<Invitation> Invitations;
+    private readonly DbSet<Invitation> Invitations;
 
     /// <summary>
     /// Constructs a new instance of the RsvpAccessControlModel class.
