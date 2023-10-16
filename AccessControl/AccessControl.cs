@@ -8,9 +8,14 @@ namespace EventSquareAPI.AccessControl;
 /// <summary>
 /// Abstract class for managing data access control.
 /// </summary>
-public abstract class AccessControlModel<TEntity>
+public abstract class AccessControlModel<TEntity> : IDisposable
     where TEntity : class
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether the model is disposed.
+    /// </summary>
+    private bool disposedValue;
+
     /// <summary>
     /// The dataset for the provided entity type.
     /// </summary>
@@ -196,5 +201,31 @@ public abstract class AccessControlModel<TEntity>
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Disposes of the model.
+    /// </summary>
+    /// <param name="disposing">Whether or not dispose of managed resources.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!this.disposedValue)
+        {
+            if (disposing)
+            {
+                this.UserManager.Dispose();
+            }
+
+            this.disposedValue = true;
+        }
+    }
+
+    /// <summary>
+    /// Disposes of the model.
+    /// </summary>
+    public void Dispose()
+    {
+        this.Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

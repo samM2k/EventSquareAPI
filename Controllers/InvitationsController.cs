@@ -12,11 +12,22 @@ namespace EventSquareAPI.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class InvitationsController : ControllerBase
+    public class InvitationsController : ControllerBase, IDisposable
     {
+        /// <summary>
+        /// The access control model.
+        /// </summary>
         private readonly AccessControlModel<Invitation> AccessControlModel;
 
+        /// <summary>
+        /// The application data context.
+        /// </summary>
         private readonly ApplicationDbContext _context;
+
+        /// <summary>
+        /// Gets whether resources have already been freed from memory.
+        /// </summary>
+        private bool disposedValue;
 
         /// <summary>
         /// The invitations controller.
@@ -174,6 +185,32 @@ namespace EventSquareAPI.Controllers
         private bool InvitationExists(string id)
         {
             return (this._context.Invitations?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        /// <summary>
+        /// Disposes of the controller.
+        /// </summary>
+        /// <param name="disposing">Whether or not to free managed resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposedValue)
+            {
+                if (disposing)
+                {
+                    this.AccessControlModel.Dispose();
+                }
+
+                this.disposedValue = true;
+            }
+        }
+
+        /// <summary>
+        /// Disposes of the Controller.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

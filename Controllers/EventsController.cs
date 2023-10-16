@@ -15,17 +15,22 @@ namespace EventSquareAPI.Controllers;
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
-public class EventsController : ControllerBase
+public class EventsController : ControllerBase, IDisposable
 {
     /// <summary>
     /// The access control model
     /// </summary>
-    private readonly AccessControlModel<CalendarEvent> _accessControl;
+    private readonly AccessControlModel<CalendarEvent> AccessControlModel;
 
     /// <summary>
     /// The data context.
     /// </summary>
     private readonly ApplicationDbContext _context;
+
+    /// <summary>
+    /// Gets whether resources have already been freed from memory.
+    /// </summary>
+    private bool disposedValue;
 
     /// <summary>
     /// The Events Controller.
@@ -37,7 +42,7 @@ public class EventsController : ControllerBase
         UserManager<IdentityUser> userManager)
     {
         this._context = context;
-        this._accessControl = new EventAccessControlModel(context.Events, context.Invitations, userManager);
+        this.AccessControlModel = new EventAccessControlModel(context.Events, context.Invitations, userManager);
     }
 
     /// <summary>
@@ -65,7 +70,7 @@ public class EventsController : ControllerBase
             return this.Problem("Entity set 'ApplicationDbContext.Events' is null.");
         }
 
-        var returnValue = await this._accessControl.GetRecordsAsync(this.HttpContext.User);
+        var returnValue = await this.AccessControlModel.GetRecordsAsync(this.HttpContext.User);
         return this.Ok(returnValue);
     }
 
@@ -89,7 +94,7 @@ public class EventsController : ControllerBase
             return this.NotFound();
         }
 
-        if (!await this._accessControl.CanReadAsync(calendarEvent, this.HttpContext.User))
+        if (!await this.AccessControlModel.CanReadAsync(calendarEvent, this.HttpContext.User))
         {
             return new StatusCodeResult((int)HttpStatusCode.Forbidden);
         }
@@ -204,5 +209,31 @@ public class EventsController : ControllerBase
     private bool CalendarEventExists(string id)
     {
         return (this._context.Events?.Any(e => e.Id == id)).GetValueOrDefault();
+    }
+
+    /// <summary>
+    /// Disposes of the controller.
+    /// </summary>
+    /// <param name="disposing">Whether or not to free managed resources.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!this.disposedValue)
+        {
+            if (disposing)
+            {
+                this.AccessControlModel.Dispose();
+            }
+
+            this.disposedValue = true;
+        }
+    }
+
+    /// <summary>
+    /// Disposes of the Controller.
+    /// </summary>
+    public void Dispose()
+    {
+        this.Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

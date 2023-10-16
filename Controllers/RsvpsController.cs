@@ -13,7 +13,7 @@ namespace EventSquareAPI.Controllers;
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
-public class RsvpsController : ControllerBase
+public class RsvpsController : ControllerBase, IDisposable
 {
     private readonly AccessControlModel<Rsvp> AccessControlModel;
 
@@ -21,6 +21,11 @@ public class RsvpsController : ControllerBase
     /// The data context.
     /// </summary>
     private readonly ApplicationDbContext _context;
+
+    /// <summary>
+    /// Gets whether resources have already been freed from memory.
+    /// </summary>
+    private bool disposedValue;
 
     /// <summary>
     /// The RSVPs Controller.
@@ -178,5 +183,31 @@ public class RsvpsController : ControllerBase
     private bool RsvpExists(string id)
     {
         return (this._context.Rsvps?.Any(e => e.Id == id)).GetValueOrDefault();
+    }
+
+    /// <summary>
+    /// Disposes of the controller.
+    /// </summary>
+    /// <param name="disposing">Whether or not to free managed resources.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!this.disposedValue)
+        {
+            if (disposing)
+            {
+                this.AccessControlModel.Dispose();
+            }
+
+            this.disposedValue = true;
+        }
+    }
+
+    /// <summary>
+    /// Disposes of the Controller.
+    /// </summary>
+    public void Dispose()
+    {
+        this.Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }
