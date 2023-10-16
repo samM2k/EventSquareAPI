@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore;
 namespace EventSquareAPI;
 
 /// <summary>
-/// Manages data access control, be it Role-based or entity-ownership-based.
+/// Model for managing data access control, be it Role-based or entity-ownership-based.
 /// </summary>
-public class AccessControl<TEntity>
+public class AccessControlModel<TEntity>
     where TEntity : class
 {
     /// <summary>
-    /// Constructor for access control.
+    /// Access Control Model.
     /// </summary>
     /// <param name="dataSet">The dataset containing the entity type.</param>
     /// <param name="entityHasOwnership">Whether or not the entity has an Owner field.</param>
@@ -23,7 +23,16 @@ public class AccessControl<TEntity>
     /// <param name="checkIfHidden">Function to check if entity is hidden.</param>
     /// <param name="getUsersWithExplicitAccess">Function to get users with explicit access permission.</param>
     /// <param name="userManager"></param>
-    public AccessControl(DbSet<TEntity> dataSet, bool entityHasOwnership, bool entityHasExplicitAccessControl, bool entityHasVisibility, Func<TEntity, string>? getOwnerIdFromEntity, Func<TEntity, bool>? checkIfPublic, Func<TEntity, bool>? checkIfHidden, Func<TEntity, List<string>>? getUsersWithExplicitAccess, UserManager<IdentityUser> userManager)
+    public AccessControlModel(
+        DbSet<TEntity> dataSet,
+        bool entityHasOwnership,
+        bool entityHasExplicitAccessControl,
+        bool entityHasVisibility,
+        Func<TEntity, string>? getOwnerIdFromEntity,
+        Func<TEntity, List<string>>? getUsersWithExplicitAccess,
+        Func<TEntity, bool>? checkIfPublic,
+        Func<TEntity, bool>? checkIfHidden,
+        UserManager<IdentityUser> userManager)
     {
         this.DataSet = dataSet;
         this.EntityHasOwnership = entityHasOwnership;
@@ -98,14 +107,21 @@ public class AccessControl<TEntity>
         return userIdentity;
     }
 
-    private bool CanRead(TEntity a, IdentityUser? user, string[] userRoles)
+    /// <summary>
+    /// Checks whether a given user can read a given record.
+    /// </summary>
+    /// <param name="record">The record being checked.</param>
+    /// <param name="user">The user being checked.</param>
+    /// <param name="userRoles">The user's roles being checked.</param>
+    /// <returns>A value indicating whether the user can read this record.</returns>
+    public bool CanRead(TEntity record, IdentityUser? user, string[] userRoles)
     {
         bool isHidden = false;
         if (this.EntityHasVisibility)
         {
-            isHidden = this.CheckIfHidden!(a);
+            isHidden = this.CheckIfHidden!(record);
 
-            bool isPublic = this.CheckIfPublic!(a);
+            bool isPublic = this.CheckIfPublic!(record);
             if (isPublic)
             {
                 // Everyone else gets access if public.
@@ -132,7 +148,7 @@ public class AccessControl<TEntity>
 
         if (this.EntityHasOwnership)
         {
-            var isOwner = this.GetOwnerIdFromEntity!(a) == user.Id;
+            var isOwner = this.GetOwnerIdFromEntity!(record) == user.Id;
             if (isOwner)
             {
                 // Owner gets access regardless of anything else.
@@ -143,7 +159,7 @@ public class AccessControl<TEntity>
 
         if (this.EntityHasExplicitAccessControl)
         {
-            bool userHasExplicitAccess = this.GetUsersWithExplicitAccess!(a).Contains(user.Id);
+            bool userHasExplicitAccess = this.GetUsersWithExplicitAccess!(record).Contains(user.Id);
             if (userHasExplicitAccess)
             {
                 // User has explicit permission to access.

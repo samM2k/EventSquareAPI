@@ -14,12 +14,10 @@ namespace EventSquareAPI.Controllers;
 [ApiController]
 public class EventsController : ControllerBase
 {
-    private AccessControl<CalendarEvent> _accessControl;
-
     /// <summary>
-    /// The user manager.
+    /// The access control model
     /// </summary>
-    private readonly UserManager<IdentityUser> _userManager;
+    private AccessControlModel<CalendarEvent> _accessControl;
 
     /// <summary>
     /// The data context.
@@ -31,11 +29,21 @@ public class EventsController : ControllerBase
     /// </summary>
     /// <param name="context">The data context.</param>
     /// <param name="userManager">The user manager.</param>
-    public EventsController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+    public EventsController(
+        ApplicationDbContext context,
+        UserManager<IdentityUser> userManager)
     {
-        this._userManager = userManager;
         this._context = context;
-        this._accessControl = new(this._context.Events, true, false, true, a => a.Owner, a => a.Visibility == EventVisibility.Public, a => a.Visibility == EventVisibility.Hidden, null, userManager);
+        this._accessControl = new(
+            this._context.Events,
+            true,
+            false,
+            true,
+            a => a.Owner,
+            null,
+            a => a.Visibility == EventVisibility.Public,
+            a => a.Visibility == EventVisibility.Hidden,
+            userManager);
     }
 
     /// <summary>
