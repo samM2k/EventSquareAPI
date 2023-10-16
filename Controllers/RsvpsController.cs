@@ -1,5 +1,6 @@
 ﻿using EventSquareAPI.DataTypes;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -72,6 +73,7 @@ public class RsvpsController : ControllerBase
     /// <param name="rsvp">The updated RSVP.</param>
     /// <returns>The HTTP response.</returns>
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> PutRsvp(string id, Rsvp rsvp)
     {
         if (id != rsvp.Id)
@@ -107,6 +109,7 @@ public class RsvpsController : ControllerBase
     /// <param name="rsvp">The RSVP to insert.</param>
     /// <returns>The HTTP Response.</returns>
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<Rsvp>> PostRsvp(Rsvp rsvp)
     {
         if (this._context.Rsvps == null)
@@ -140,6 +143,7 @@ public class RsvpsController : ControllerBase
     /// <param name="id">The Id of the RSVP to delete.</param>
     /// <returns>The HTTP Response.</returns>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteRsvp(string id)
     {
         if (this._context.Rsvps == null)

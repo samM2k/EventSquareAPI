@@ -1,5 +1,6 @@
 ﻿using EventSquareAPI.DataTypes;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,11 +27,22 @@ public class EventsController : ControllerBase
         this._context = context;
     }
 
-    // GET: api/Events
     /// <summary>
     /// Get all events.
     /// </summary>
     /// <returns>The HTTP response.</returns>
+    /// <remarks>
+    ///     <para>
+    ///         If unauthorized, only retrieve public events.
+    ///     </para>
+    /// 
+    ///     <para>
+    ///         If authorized as standard user, only retrieve public events, those the user has been invited to and those the user is owner of.
+    ///     </para>
+    ///     <para>
+    ///         If authorized as admin user, view all events.
+    ///     </para>
+    /// </remarks>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetEvents()
     {
@@ -73,6 +85,7 @@ public class EventsController : ControllerBase
     /// <param name="calendarEvent">The updated event.</param>
     /// <returns>The HTTP response.</returns>
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> PutCalendarEvent(string id, CalendarEvent calendarEvent)
     {
         if (id != calendarEvent.Id)
@@ -109,6 +122,7 @@ public class EventsController : ControllerBase
     /// <param name="calendarEvent">The new event.</param>
     /// <returns>The HTTP response.</returns>
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<CalendarEvent>> PostCalendarEvent(CalendarEvent calendarEvent)
     {
         if (this._context.Events == null)
@@ -142,6 +156,7 @@ public class EventsController : ControllerBase
     /// <param name="id">The Id of the event to delete.</param>
     /// <returns>The HTTP response.</returns>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteCalendarEvent(string id)
     {
         if (this._context.Events == null)
