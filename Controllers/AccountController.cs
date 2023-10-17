@@ -1,8 +1,10 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Security.Claims;
 
 using EventSquareAPI.DataTypes;
-using EventSquareAPI.Security;
 
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,17 +19,17 @@ namespace EventSquareAPI.Controllers;
 public class AccountController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
-    private readonly JwtTokenHandler _tokenHandler;
+    //private readonly JwtTokenHandler _tokenHandler;
 
     /// <summary>
     /// The account controller.
     /// </summary>
     /// <param name="userManager">The ASP.NET Identity UserManager.</param>
-    /// <param name="tokenHandler">The Token Handler.</param>
-    public AccountController(UserManager<IdentityUser> userManager, JwtTokenHandler tokenHandler)
+    //// <param name="tokenHandler">The Token Handler.</param>
+    public AccountController(UserManager<IdentityUser> userManager)
     {
         this._userManager = userManager;
-        this._tokenHandler = tokenHandler;
+        //this._tokenHandler = tokenHandler;
     }
 
     /// <summary>
@@ -67,26 +69,34 @@ public class AccountController : ControllerBase
     /// </summary>
     /// <param name="login">The user login credentials.</param>
     /// <returns>An access token.</returns>
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginModel login)
     {
-        if (this.ModelState.IsValid)
+        // Validate the user's credentials (e.g., using UserManager and SignInManager)
+        IdentityUser? user = await this._userManager.FindByEmailAsync(login.Email);
+
+        if (user == null || !await this._userManager.CheckPasswordAsync(user, login.Password))
         {
-            IdentityUser? user = await this._userManager.FindByNameAsync(login.Email);
-
-            if (user != null && await this._userManager.CheckPasswordAsync(user, login.Password))
-            {
-                JwtSecurityToken token = this._tokenHandler.GetToken(user);
-                return this.Ok(new
-                {
-                    Token = new JwtSecurityTokenHandler().WriteToken(token),
-                    Expiration = token.ValidTo
-                });
-            }
-
-            return this.Unauthorized(new { Message = "Invalid email or password" });
+            return this.Unauthorized(); // Invalid credentials
         }
 
-        return this.BadRequest(new { Message = "Invalid model" });
+        // Create the claims for the user (You can customize this based on your requirements)
+        var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name.ToString(), user.UserName?? string.Empty),
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+    };
+
+        // Create a Claims Identity with the claims
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        // Sign in the user with a cookie
+        await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+        // Generate a JWT token for the user (if needed)
+        //var token = this._tokenHandler.GetToken(user);
+
+        return this.NoContent();
     }
 }

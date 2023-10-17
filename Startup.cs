@@ -1,13 +1,9 @@
-﻿using System.Text;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-using EventSquareAPI.Security;
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.PlatformAbstractions;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace EventSquareAPI;
@@ -51,6 +47,7 @@ public static class Startup
 
         app.UseHttpsRedirection();
         app.UseRouting();
+
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -123,7 +120,6 @@ public static class Startup
 
         builder.Services.Configure<IdentityOptions>(options =>
         {
-
             // Password settings.
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = true;
@@ -145,35 +141,41 @@ public static class Startup
 
         builder.Services.AddAuthentication(options =>
         {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         })
-        .AddJwtBearer(options =>
+        //.AddJwtBearer(options =>
+        //{
+        //    options.TokenValidationParameters = new TokenValidationParameters
+        //    {
+        //        ValidateIssuer = true,
+        //        ValidateAudience = true,
+        //        ValidateIssuerSigningKey = true,
+        //        ValidIssuer = configuration["Jwt:Issuer"],
+        //        ValidAudience = configuration["Jwt:Audience"],
+        //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Unable to get JWT Secret from appSettings.")))
+        //    };
+        //})
+        .AddCookie(options =>
         {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = configuration["Jwt:Issuer"],
-                ValidAudience = configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Unable to get JWT Secret from appSettings.")))
-            };
+            options.ExpireTimeSpan = TimeSpan.FromDays(30); // Adjust the expiration time as needed
+            options.LoginPath = "/api/login"; // Specify the login path
+            options.Cookie.Path = "/";
         });
 
-        builder.Services.AddScoped(provider =>
-        {
-            var secret = configuration["Jwt:Secret"];
-            var audience = configuration["Jwt:Audience"];
-            var issuer = configuration["Jwt:Issuer"];
+        //builder.Services.AddScoped(provider =>
+        //{
+        //    var secret = configuration["Jwt:Secret"];
+        //    var audience = configuration["Jwt:Audience"];
+        //    var issuer = configuration["Jwt:Issuer"];
 
-            if (secret is null)
-            {
-                throw new InvalidOperationException("Unable to get JWT Secret from Configuration.");
-            }
+        //    if (secret is null)
+        //    {
+        //        throw new InvalidOperationException("Unable to get JWT Secret from Configuration.");
+        //    }
 
-            return new JwtTokenHandler(secret, audience, issuer);
-        });
+        //    return new JwtTokenHandler(secret, audience, issuer);
+        //});
 
 
         builder.Services.AddAuthorization();
