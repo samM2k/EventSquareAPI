@@ -47,7 +47,7 @@ public static class Startup
 
         app.UseHttpsRedirection();
         app.UseRouting();
-
+        app.UseCors(a => a.AllowAnyOrigin().AllowAnyHeader());
         app.UseAuthentication();
         app.UseAuthorization();
 

@@ -78,7 +78,7 @@ public class AccountController : ControllerBase
 
         if (user == null || !await this._userManager.CheckPasswordAsync(user, login.Password))
         {
-            return this.Unauthorized(); // Invalid credentials
+            return this.Unauthorized("Invalid username or password."); // Invalid credentials
         }
 
         // Create the claims for the user (You can customize this based on your requirements)
