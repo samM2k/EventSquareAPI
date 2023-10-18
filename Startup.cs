@@ -47,7 +47,10 @@ public static class Startup
 
         app.UseHttpsRedirection();
         app.UseRouting();
-        app.UseCors(a => a.AllowAnyOrigin().AllowAnyHeader());
+        app.UseCors(a => a.SetIsOriginAllowed((a) =>
+        {
+            return a.Contains("http://localhost:");
+        }).AllowAnyHeader().AllowCredentials());
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -159,8 +162,17 @@ public static class Startup
         .AddCookie(options =>
         {
             options.ExpireTimeSpan = TimeSpan.FromDays(30); // Adjust the expiration time as needed
-            options.LoginPath = "/api/login"; // Specify the login path
-            options.Cookie.Path = "/";
+
+            options.Cookie.SameSite = SameSiteMode.None;
+            options.Events = new CookieAuthenticationEvents
+            {
+                OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401; // Unauthorized
+                    return Task.CompletedTask;
+                }
+            };
+
         });
 
         //builder.Services.AddScoped(provider =>

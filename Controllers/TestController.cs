@@ -25,7 +25,7 @@ public class TestController : ControllerBase
     /// </summary>
     /// <returns>A result indicating the success or failure of authentication.</returns>
     [HttpGet]
-    [Route("ValidateSession")]
+    [Route("api/Validate")]
     [Authorize]
     public async Task<ObjectResult> ValidateToken()
     {

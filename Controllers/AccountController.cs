@@ -19,16 +19,19 @@ namespace EventSquareAPI.Controllers;
 public class AccountController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<IdentityUser> _signInManager;
     //private readonly JwtTokenHandler _tokenHandler;
 
     /// <summary>
     /// The account controller.
     /// </summary>
     /// <param name="userManager">The ASP.NET Identity UserManager.</param>
+    /// <param name="signInManager">The ASP.NET Signin Manager.</param>
     //// <param name="tokenHandler">The Token Handler.</param>
-    public AccountController(UserManager<IdentityUser> userManager)
+    public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
     {
         this._userManager = userManager;
+        this._signInManager = signInManager;
         //this._tokenHandler = tokenHandler;
     }
 
@@ -65,6 +68,19 @@ public class AccountController : ControllerBase
     }
 
     /// <summary>
+    /// Logout the current user.
+    /// </summary>
+    /// <returns>The HTTP Response.</returns>
+    [Authorize]
+    [HttpGet("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await this.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await this._signInManager.SignOutAsync();
+        return this.NoContent();
+    }
+
+    /// <summary>
     /// Exchange user login credentials for an access token.
     /// </summary>
     /// <param name="login">The user login credentials.</param>
@@ -95,7 +111,7 @@ public class AccountController : ControllerBase
         await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
         // Generate a JWT token for the user (if needed)
-        //var token = this._tokenHandler.GetToken(user);
+        ////var token = this._tokenHandler.GetToken(user);
 
         return this.NoContent();
     }
