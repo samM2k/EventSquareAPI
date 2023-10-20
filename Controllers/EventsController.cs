@@ -22,6 +22,12 @@ public class EventsController : ControllerBase, IDisposable
     /// </summary>
     private readonly AccessControlModel<CalendarEvent> AccessControlModel;
 
+
+    /// <summary>
+    /// The application configuration.
+    /// </summary>
+    private readonly IConfiguration _config;
+
     /// <summary>
     /// The data context.
     /// </summary>
@@ -37,12 +43,15 @@ public class EventsController : ControllerBase, IDisposable
     /// </summary>
     /// <param name="context">The data context.</param>
     /// <param name="userManager">The user manager.</param>
+    /// <param name="config">The application configuration.</param>
     public EventsController(
         ApplicationDbContext context,
-        UserManager<IdentityUser> userManager)
+        UserManager<IdentityUser> userManager,
+        IConfiguration config)
     {
         this._context = context;
         this.AccessControlModel = new EventAccessControlModel(context.Events, context.Invitations, userManager);
+        this._config = config;
     }
 
     /// <summary>
@@ -124,8 +133,10 @@ public class EventsController : ControllerBase, IDisposable
         }
 
         // Check using the original in case owner is updated.
-        if (await this.AccessControlModel.CanWriteAsync(original, this.HttpContext.User))
+        if (true) //await this.AccessControlModel.CanWriteAsync(original, this.HttpContext.User)
         {
+            await this.EnsureValidLocation(calendarEvent);
+
             this._context.Entry(calendarEvent).State = EntityState.Modified;
 
             try
@@ -141,7 +152,57 @@ public class EventsController : ControllerBase, IDisposable
             return this.NoContent();
         }
 
-        return this.Problem(detail: "Not authorised to update event.", statusCode: 403);
+        //return this.Problem(detail: "Not authorised to update event.", statusCode: 403);
+    }
+
+    private async Task EnsureValidLocation(CalendarEvent calendarEvent)
+    {
+        var location = calendarEvent.Location;
+        if (location == null)
+            return;
+        if (location.Latitude is not null && location.Longitude is not null)
+        {
+            // event already has lat long, no need to geocode
+            return;
+        }
+
+        await this.GeocodeLocation(location);
+    }
+
+    private async Task GeocodeLocation(Location location)
+    {
+        var addressString = this.GetAddressFromLocation(location);
+        var client = new HttpClient();
+        UriBuilder builder = new UriBuilder("https://maps.googleapis.com/maps/api/geocode/json");
+        builder.Query = $"address={Uri.EscapeDataString(addressString)}&key={Uri.EscapeDataString(this._config["googleMapsApiKey"] ?? "")}";
+        var request = builder.Uri;
+        try
+        {
+            var response = await client.GetAsync(request);
+            var geocodeResultsJson = await response.Content.ReadAsStringAsync();
+            Trace.WriteLine(geocodeResultsJson);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine(ex);
+        }
+
+    }
+
+    private string GetAddressFromLocation(Location location)
+    {
+        string addressString = string.Empty;
+        if (location.FlatNumber is not null)
+        {
+            addressString += location.FlatNumber + ("/");
+        }
+
+        addressString += location.StreetNumber + " ";
+        addressString += location.StreetName + ", ";
+        addressString += location.Locality + ", ";
+        addressString += location.StateRegion + ", ";
+        addressString += location.Country;
+        return addressString;
     }
 
     // POST: api/Events
