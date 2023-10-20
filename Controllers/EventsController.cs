@@ -135,7 +135,7 @@ public class EventsController : ControllerBase, IDisposable
         // Check using the original in case owner is updated.
         if (true) //await this.AccessControlModel.CanWriteAsync(original, this.HttpContext.User)
         {
-            calendarEvent = await this.EnsureValidLocation(calendarEvent, original);
+            calendarEvent = await this.ValidateEventUpdate(calendarEvent, original);
 
             foreach (var prop in calendarEvent.GetType().GetProperties())
             {
@@ -166,7 +166,7 @@ public class EventsController : ControllerBase, IDisposable
         //return this.Problem(detail: "Not authorised to update event.", statusCode: 403);
     }
 
-    private async Task<CalendarEvent> EnsureValidLocation(CalendarEvent calendarEvent, CalendarEvent original)
+    private async Task<CalendarEvent> ValidateEventUpdate(CalendarEvent calendarEvent, CalendarEvent original)
     {
         var location = calendarEvent.Location;
         if (location == null)
@@ -256,6 +256,11 @@ public class EventsController : ControllerBase, IDisposable
 
         Debug.Assert(userIdentity is not null);
         calendarEvent.Owner = userIdentity.Id;
+
+        if (calendarEvent.Location is not null && (calendarEvent.Location.Longitude is null || calendarEvent.Location.Latitude is null))
+        {
+            calendarEvent.Location = await this.GeocodeLocation(calendarEvent.Location);
+        }
 
         this._context.Events.Add(calendarEvent);
         try
