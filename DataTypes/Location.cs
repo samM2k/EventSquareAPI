@@ -11,7 +11,7 @@ public class Location
     /// Constructs a location.
     /// </summary>
     [JsonConstructor]
-    public Location(int? flatNumber, int streetNumber, string streetName, string locality, string stateRegion, string country)
+    public Location(int? flatNumber, int streetNumber, string streetName, string locality, string stateRegion, string country, double? latitude, double? longitude)
     {
         this.FlatNumber = flatNumber;
         this.StreetNumber = streetNumber;
@@ -19,6 +19,8 @@ public class Location
         this.Locality = locality;
         this.StateRegion = stateRegion;
         this.Country = country;
+        this.Latitude = latitude;
+        this.Longitude = longitude;
     }
 
 
@@ -30,17 +32,19 @@ public class Location
     /// <param name="locality">The suburb/town/city.</param>
     /// <param name="stateRegion">The state/region.</param>
     /// <param name="country">The country.</param>
-    public Location(int streetNumber, string streetName, string locality, string stateRegion, string country) :
-        this(null, streetNumber, streetName, locality, stateRegion, country)
+    /// <param name="latitude"></param>
+    /// <param name="longitude"></param>
+    public Location(int streetNumber, string streetName, string locality, string stateRegion, string country, double? latitude, double? longitude) :
+        this(null, streetNumber, streetName, locality, stateRegion, country, latitude, longitude)
     { }
 
     /// <summary>
-    /// Gets or sets the flat number of the event.
+    /// Gets or sets the flat number.
     /// </summary>
     public int? FlatNumber { get; set; }
 
     /// <summary>
-    /// Gets or sets the street number of the event.
+    /// Gets or sets the street number.
     /// </summary>
     public int StreetNumber { get; set; }
 
@@ -50,17 +54,28 @@ public class Location
     public string StreetName { get; set; }
 
     /// <summary>
-    /// Gets or sets the locality (city/suburb) of the event.
+    /// Gets or sets the locality (city/suburb).
     /// </summary>
     public string Locality { get; set; }
 
     /// <summary>
-    /// Gets or sets the State/Region of the event.
+    /// Gets or sets the State/Region.
     /// </summary>
     public string StateRegion { get; set; }
 
     /// <summary>
-    /// Gets or sets the Country in which the event is occurring..
+    /// Gets or sets the Country..
     /// </summary>
     public string Country { get; set; }
+
+    /// <summary>
+    /// Gets or sets the longitude for the location.
+    /// </summary>
+    public double? Latitude { get; set; }
+
+
+    /// <summary>
+    /// Gets or sets the longitude for the location.
+    /// </summary>
+    public double? Longitude { get; set; }
 }

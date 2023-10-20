@@ -53,16 +53,16 @@ public class TestController : ControllerBase
         Random rnd = new Random();
 
         var locations = new Location[] {
-    new Location(1, "123 Main Street", "New York", "New York", "USA"),
-    new Location(2, "456 Elm Avenue", "Los Angeles", "California", "USA"),
-    new Location(3, "789 Oak Lane", "Chicago", "Illinois", "USA"),
-    new Location(4, "101 Pine Road", "London", "England", "UK"),
-    new Location(5, "202 Maple Drive", "Paris", "Ile-de-France", "France"),
-    new Location(6, "303 Cedar Street", "Sydney", "New South Wales", "Australia"),
-    new Location(7, "404 Birch Avenue", "Toronto", "Ontario", "Canada"),
-    new Location(8, "505 Redwood Court", "Berlin", "Berlin", "Germany"),
-    new Location(9, "606 Spruce Road", "Tokyo", "Tokyo", "Japan"),
-    new Location(10, "707 Willow Lane", "Dubai", "Dubai", "UAE"),
+    new Location(1, "123 Main Street", "New York", "New York", "USA",null,null),
+    new Location(2, "456 Elm Avenue", "Los Angeles", "California", "USA",null,null),
+    new Location(3, "789 Oak Lane", "Chicago", "Illinois", "USA", null, null),
+    new Location(4, "101 Pine Road", "London", "England", "UK", null, null),
+    new Location(5, "202 Maple Drive", "Paris", "Ile-de-France", "France", null, null),
+    new Location(6, "303 Cedar Street", "Sydney", "New South Wales", "Australia", null, null),
+    new Location(7, "404 Birch Avenue", "Toronto", "Ontario", "Canada", null, null),
+    new Location(8, "505 Redwood Court", "Berlin", "Berlin", "Germany", null, null),
+    new Location(9, "606 Spruce Road", "Tokyo", "Tokyo", "Japan", null, null),
+    new Location(10, "707 Willow Lane", "Dubai", "Dubai", "UAE", null, null),
 };
 
 
