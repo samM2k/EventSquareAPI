@@ -3,6 +3,4 @@
 /// <summary>
 /// Response data from google geocoding request.
 /// </summary>
-public class GoogleGeocodeResponse
-{
-}
+public record GoogleGeocodeResponse(GoogleLocation[] results, string status);

@@ -105,7 +105,7 @@ public static class Startup
         });
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(connectionString));
+        options.UseSqlite(connectionString).EnableSensitiveDataLogging());
 
         ConfigureIdentity(builder);
     }

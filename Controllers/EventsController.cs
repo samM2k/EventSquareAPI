@@ -135,9 +135,20 @@ public class EventsController : ControllerBase, IDisposable
         // Check using the original in case owner is updated.
         if (true) //await this.AccessControlModel.CanWriteAsync(original, this.HttpContext.User)
         {
-            await this.EnsureValidLocation(calendarEvent);
+            calendarEvent = await this.EnsureValidLocation(calendarEvent, original);
 
-            this._context.Entry(calendarEvent).State = EntityState.Modified;
+            foreach (var prop in calendarEvent.GetType().GetProperties())
+            {
+                var originalValue = prop.GetValue(original);
+                var newValue = prop.GetValue(calendarEvent);
+                if (originalValue != newValue)
+                {
+                    prop.SetValue(original, newValue);
+                }
+
+            }
+
+            Trace.WriteLine(original);
 
             try
             {
@@ -149,27 +160,42 @@ public class EventsController : ControllerBase, IDisposable
                 Trace.WriteLine(ex.Message);
                 return this.Problem("Exception occurred on updating database.");
             }
-            return this.NoContent();
+            return this.Ok(original);
         }
 
         //return this.Problem(detail: "Not authorised to update event.", statusCode: 403);
     }
 
-    private async Task EnsureValidLocation(CalendarEvent calendarEvent)
+    private async Task<CalendarEvent> EnsureValidLocation(CalendarEvent calendarEvent, CalendarEvent original)
     {
         var location = calendarEvent.Location;
         if (location == null)
-            return;
+            return calendarEvent;
         if (location.Latitude is not null && location.Longitude is not null)
         {
             // event already has lat long, no need to geocode
-            return;
+            return calendarEvent;
         }
 
-        await this.GeocodeLocation(location);
+        if (original.Location is not null && this.LocationsAreEqual(original.Location, location))
+        {
+            location.Longitude = original.Location.Longitude;
+            location.Latitude = original.Location.Longitude;
+            return calendarEvent;
+        }
+
+
+        calendarEvent.Location = await this.GeocodeLocation(location);
+
+        return calendarEvent;
     }
 
-    private async Task GeocodeLocation(Location location)
+    private bool LocationsAreEqual(Location left, Location right)
+    {
+        return this.GetAddressFromLocation(left) == this.GetAddressFromLocation(right);
+    }
+
+    private async Task<Location> GeocodeLocation(Location location)
     {
         var addressString = this.GetAddressFromLocation(location);
         var client = new HttpClient();
@@ -180,11 +206,16 @@ public class EventsController : ControllerBase, IDisposable
         {
             var response = await client.GetAsync(request);
             var geocodeResultsJson = await response.Content.ReadAsStringAsync();
-            Trace.WriteLine(geocodeResultsJson);
+            GoogleGeocodeResponse? geoResponse = await response.Content.ReadFromJsonAsync<GoogleGeocodeResponse>();
+            var latLong = geoResponse?.results.First().geometry.location;
+            location.Latitude = latLong?.lat;
+            location.Longitude = latLong?.lng;
+            return location;
         }
         catch (Exception ex)
         {
             Trace.WriteLine(ex);
+            return location;
         }
 
     }
