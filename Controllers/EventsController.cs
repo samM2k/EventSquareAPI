@@ -171,7 +171,7 @@ public class EventsController : ControllerBase, IDisposable
         var location = calendarEvent.Location;
         if (location == null)
             return calendarEvent;
-        if (location.Latitude is not null && location.Longitude is not null)
+        if (location.Coordinates is not null)
         {
             // event already has lat long, no need to geocode
             return calendarEvent;
@@ -179,8 +179,7 @@ public class EventsController : ControllerBase, IDisposable
 
         if (original.Location is not null && this.LocationsAreEqual(original.Location, location))
         {
-            location.Longitude = original.Location.Longitude;
-            location.Latitude = original.Location.Longitude;
+            location.Coordinates = original.Location.Coordinates;
             return calendarEvent;
         }
 
@@ -207,9 +206,13 @@ public class EventsController : ControllerBase, IDisposable
             var response = await client.GetAsync(request);
             var geocodeResultsJson = await response.Content.ReadAsStringAsync();
             GoogleGeocodeResponse? geoResponse = await response.Content.ReadFromJsonAsync<GoogleGeocodeResponse>();
-            var latLong = geoResponse?.results.First().geometry.location;
-            location.Latitude = latLong?.lat;
-            location.Longitude = latLong?.lng;
+            var latLong = geoResponse?.results.FirstOrDefault()?.geometry.location;
+
+            if (latLong != null)
+            {
+                location.Coordinates = new(latLong.lat, latLong.lng);
+            }
+
             return location;
         }
         catch (Exception ex)
@@ -257,7 +260,7 @@ public class EventsController : ControllerBase, IDisposable
         Debug.Assert(userIdentity is not null);
         calendarEvent.Owner = userIdentity.Id;
 
-        if (calendarEvent.Location is not null && (calendarEvent.Location.Longitude is null || calendarEvent.Location.Latitude is null))
+        if (calendarEvent.Location is not null && calendarEvent.Location.Coordinates is null)
         {
             calendarEvent.Location = await this.GeocodeLocation(calendarEvent.Location);
         }

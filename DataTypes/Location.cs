@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace EventSquareAPI.DataTypes;
+﻿namespace EventSquareAPI.DataTypes;
 
 /// <summary>
 /// An address or location.
@@ -8,35 +6,9 @@ namespace EventSquareAPI.DataTypes;
 public class Location
 {
     /// <summary>
-    /// Constructs a location.
+    /// Gets or sets the name of the site or venue at this location.
     /// </summary>
-    [JsonConstructor]
-    public Location(int? flatNumber, int streetNumber, string streetName, string locality, string stateRegion, string country, double? latitude, double? longitude)
-    {
-        this.FlatNumber = flatNumber;
-        this.StreetNumber = streetNumber;
-        this.StreetName = streetName;
-        this.Locality = locality;
-        this.StateRegion = stateRegion;
-        this.Country = country;
-        this.Latitude = latitude;
-        this.Longitude = longitude;
-    }
-
-
-    /// <summary>
-    /// A location.
-    /// </summary>
-    /// <param name="streetNumber">The street number.</param>
-    /// <param name="streetName">The name of the stret, including the street type.</param>
-    /// <param name="locality">The suburb/town/city.</param>
-    /// <param name="stateRegion">The state/region.</param>
-    /// <param name="country">The country.</param>
-    /// <param name="latitude"></param>
-    /// <param name="longitude"></param>
-    public Location(int streetNumber, string streetName, string locality, string stateRegion, string country, double? latitude, double? longitude) :
-        this(null, streetNumber, streetName, locality, stateRegion, country, latitude, longitude)
-    { }
+    public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets the flat number.
@@ -54,28 +26,54 @@ public class Location
     public string StreetName { get; set; }
 
     /// <summary>
-    /// Gets or sets the locality (city/suburb).
+    /// Gets or sets the locality.
     /// </summary>
     public string Locality { get; set; }
 
     /// <summary>
-    /// Gets or sets the State/Region.
+    /// Gets or sets the state/region.
     /// </summary>
     public string StateRegion { get; set; }
 
     /// <summary>
-    /// Gets or sets the Country..
+    /// Gets or sets the postcode.
+    /// </summary>
+    public int Postcode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the country.
     /// </summary>
     public string Country { get; set; }
 
     /// <summary>
-    /// Gets or sets the longitude for the location.
+    /// Gets or sets the coordinates of the location.
     /// </summary>
-    public double? Latitude { get; set; }
+    public LocationCoordinates? Coordinates { get; set; }
 
 
     /// <summary>
-    /// Gets or sets the longitude for the location.
+    /// Constructs a new location.
     /// </summary>
-    public double? Longitude { get; set; }
+    /// <param name="name">The name of the site/building.</param>
+    /// <param name="flatNumber">The flat number.</param>
+    /// <param name="streetNumber">The street numnber.</param>
+    /// <param name="streetName">The street name.</param>
+    /// <param name="locality">The locality.</param>
+    /// <param name="stateRegion">The state/region.</param>
+    /// <param name="postcode">The postcode.</param>
+    /// <param name="country">The country.</param>
+    /// <param name="coordinates">The coordinates.</param>
+    public Location(string? name, int? flatNumber, int streetNumber, string streetName, string locality, string stateRegion, int postcode, string country, LocationCoordinates? coordinates)
+    {
+        this.Name = name;
+        this.FlatNumber = flatNumber;
+        this.StreetNumber = streetNumber;
+        this.StreetName = streetName;
+        this.Locality = locality;
+        this.StateRegion = stateRegion;
+        this.Postcode = postcode;
+        this.Country = country;
+        this.Coordinates = coordinates;
+    }
 }
+

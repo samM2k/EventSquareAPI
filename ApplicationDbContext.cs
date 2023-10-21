@@ -44,7 +44,7 @@ public class ApplicationDbContext : IdentityDbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.Entity<CalendarEvent>().OwnsOne(a => a.Location);
+        builder.Entity<CalendarEvent>().OwnsOne(a => a.Location).OwnsOne(a => a.Coordinates);
         builder.Entity<Rsvp>().HasOne(a => a.Event).WithMany(a => a.Rsvps).HasForeignKey(a => a.EventId);
     }
 
