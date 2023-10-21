@@ -75,5 +75,9 @@ public class Location
         this.Country = country;
         this.Coordinates = coordinates;
     }
+
+#pragma warning disable CS8618 // For EFCore migrations.
+    private Location() { }
+#pragma warning restore CS8618 
 }
 
