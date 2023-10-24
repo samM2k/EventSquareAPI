@@ -133,7 +133,7 @@ public class EventsController : ControllerBase, IDisposable
         }
 
         // Check using the original in case owner is updated.
-        if (true) //await this.AccessControlModel.CanWriteAsync(original, this.HttpContext.User)
+        if (await this.AccessControlModel.CanWriteAsync(original, this.HttpContext.User))
         {
             calendarEvent = await this.ValidateEventUpdate(calendarEvent, original);
 
@@ -163,7 +163,7 @@ public class EventsController : ControllerBase, IDisposable
             return this.Ok(original);
         }
 
-        //return this.Problem(detail: "Not authorised to update event.", statusCode: 403);
+        return this.Problem(detail: "Not authorised to update event.", statusCode: 403);
     }
 
     private async Task<CalendarEvent> ValidateEventUpdate(CalendarEvent calendarEvent, CalendarEvent original)
