@@ -56,6 +56,19 @@ public class AccountController : ControllerBase
 
             if (result.Succeeded)
             {
+                // Create the claims for the user (You can customize this based on your requirements)
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name.ToString(), user.UserName?? string.Empty),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                };
+
+                // Create a Claims Identity with the claims
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                // Sign in the user with a cookie
+                await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
                 // User registration successful, you may also generate a token and send it as a response if needed
                 return this.Ok(new { Message = "User registered successfully" });
             }
