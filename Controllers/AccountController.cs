@@ -70,7 +70,7 @@ public class AccountController : ControllerBase
                 await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
                 // User registration successful, you may also generate a token and send it as a response if needed
-                return this.Ok(new { Message = "User registered successfully" });
+                return this.Ok(new LoginResponse(user.Id, user.UserName, user.Email, user.PhoneNumber));
             }
 
             // If registration fails, return the error messages
@@ -126,6 +126,6 @@ public class AccountController : ControllerBase
         // Generate a JWT token for the user (if needed)
         ////var token = this._tokenHandler.GetToken(user);
 
-        return this.NoContent();
+        return this.Ok(new LoginResponse(user.Id, user.UserName, user.Email, user.PhoneNumber));
     }
 }
